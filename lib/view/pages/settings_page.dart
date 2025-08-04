@@ -35,6 +35,55 @@ class _ProfilePageState extends State<SettingsPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              ElevatedButton(
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog.adaptive(
+                        title: Text('Dialog Title'),
+                        content: Text('This is a dialog message.'),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop(); // Close the dialog
+                            },
+                            child: Text('Close'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.purple,
+                  foregroundColor: Colors.white,
+                ),
+                child: Text("Open Dialog"),
+              ),
+              Divider(color: Colors.black, thickness: 1.0),
+              ElevatedButton(
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('This is a snackbar message!'),
+                      duration: Duration(seconds: 2),
+                      behavior: SnackBarBehavior.floating,
+                      action: SnackBarAction(
+                        label: 'Undo',
+                        onPressed: () {
+                          // Handle the undo action
+                        },
+                      ),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.purple,
+                  foregroundColor: Colors.white,
+                ),
+                child: Text("Open Snackbar"),
+              ),
               DropdownButton(
                 value: menuItem,
                 items: [
@@ -118,14 +167,7 @@ class _ProfilePageState extends State<SettingsPage> {
                   color: Colors.white10,
                 ),
               ),
-              ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.purple,
-                  foregroundColor: Colors.white,
-                ),
-                child: Text("Click Me"),
-              ),
+
               ElevatedButton(onPressed: () {}, child: Text("Click Me")),
               FilledButton(onPressed: () {}, child: Text("Click Me")),
               TextButton(onPressed: () {}, child: Text("Click Me")),

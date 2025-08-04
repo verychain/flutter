@@ -1,0 +1,6 @@
+{
+  "editor.multiCursorModifier": "alt",
+  "dart.openDevTools": "flutter",
+  "dart.devToolsBrowser": "default",
+  "dart.previewFlutterUiGuides": true
+}
