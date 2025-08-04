@@ -1,8 +1,9 @@
 import 'package:demo_flutter/data/constants.dart';
 import 'package:demo_flutter/view/pages/signup_page.dart';
+import 'package:demo_flutter/view/pages/forgot_password_page.dart'; // 추가
 import 'package:demo_flutter/view/widget_tree.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // 추가
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class LoginPage extends StatefulWidget {
@@ -187,7 +188,12 @@ class _LoginPageState extends State<LoginPage> {
                 child: GestureDetector(
                   onTap: () {
                     // 비밀번호 찾기 페이지로 이동
-                    print("Navigate to Forgot Password");
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ForgotPasswordPage(),
+                      ),
+                    );
                   },
                   child: Text(
                     "비밀번호를 잊어버리셨나요?",
