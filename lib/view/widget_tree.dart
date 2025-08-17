@@ -15,7 +15,7 @@ class WidgetTree extends StatelessWidget {
   const WidgetTree({super.key, this.title});
 
   // 페이지별 제목 정의 (기본값들)
-  final List<String> pageTitles = const ['거래', 'Profile'];
+  final List<String> pageTitles = const ['P2P', 'Profile'];
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +24,7 @@ class WidgetTree extends StatelessWidget {
       builder: (context, selectedPage, child) {
         return Scaffold(
           appBar: AppBar(
+            backgroundColor: Colors.white,
             title: Text(title ?? pageTitles[selectedPage]),
             actions: [
               IconButton(

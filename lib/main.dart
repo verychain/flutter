@@ -39,11 +39,12 @@ class _MyAppState extends State<MyApp> {
       builder: (context, isDarkMode, child) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
-          title: 'Crypto P2P Market',
+          title: 'Verypool - Crypto P2P Market',
           theme: ThemeData(
             fontFamily: 'Pretendard',
+            scaffoldBackgroundColor: Colors.white, // 앱 전체 배경색을 화이트로 지정
             colorScheme: ColorScheme.fromSeed(
-              seedColor: Colors.lightBlue,
+              seedColor: AppColors.primary,
               brightness: isDarkMode
                   ? Brightness.dark
                   : Brightness.light, // Will change when theme is toggled
