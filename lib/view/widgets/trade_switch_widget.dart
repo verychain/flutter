@@ -43,15 +43,6 @@ class TradeSwitchWidget extends StatelessWidget {
                       ? AppColors.buyColor
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(22.0),
-                  boxShadow: isBuySelected
-                      ? [
-                          BoxShadow(
-                            color: AppColors.buyColor.withOpacity(0.3),
-                            blurRadius: 8.0,
-                            offset: Offset(0, 2),
-                          ),
-                        ]
-                      : [],
                 ),
                 child: Center(
                   child: Text(
@@ -79,15 +70,6 @@ class TradeSwitchWidget extends StatelessWidget {
                       ? AppColors.sellColor
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(22.0),
-                  boxShadow: !isBuySelected
-                      ? [
-                          BoxShadow(
-                            color: AppColors.sellColor.withOpacity(0.3),
-                            blurRadius: 8.0,
-                            offset: Offset(0, 2),
-                          ),
-                        ]
-                      : [],
                 ),
                 child: Center(
                   child: Text(

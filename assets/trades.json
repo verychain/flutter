@@ -1,0 +1,80 @@
+[
+  {
+    "type": "SELL",
+    "updatedAt": "2025-08-17T09:10:00",
+    "createdAt": "2025-08-17T07:00:00",
+    "userName": "sleepless_night",
+    "userRating": 98.5,
+    "tradeCount": 245,
+    "price": 13,
+    "successRate": 98.5,
+    "quantity": 10000,
+    "paymentMethods": "신한은행",
+    "userRanking": "PLATINUM"
+  },
+  {
+    "type": "SELL",
+    "updatedAt": "2025-08-17T08:35:00",
+    "createdAt": "2025-08-17T06:00:00",
+    "userName": "iwanttoberich",
+    "userRating": 99.2,
+    "tradeCount": 156,
+    "price": 12,
+    "successRate": 99.2,
+    "quantity": 20000,
+    "paymentMethods": "국민은행",
+    "userRanking": "GOLD"
+  },
+  {
+    "type": "BUY",
+    "updatedAt": "2025-08-17T08:00:00",
+    "createdAt": "2025-08-17T08:00:00",
+    "userName": "vanci",
+    "userRating": 97.8,
+    "tradeCount": 89,
+    "price": 13,
+    "successRate": 97.8,
+    "quantity": 30000,
+    "paymentMethods": "우리은행",
+    "userRanking": "BRONZE"
+  },
+  {
+    "type": "BUY",
+    "updatedAt": "2025-08-17T09:10:00",
+    "createdAt": "2025-08-17T07:00:00",
+    "userName": "rick",
+    "userRating": 98.5,
+    "tradeCount": 245,
+    "price": 13,
+    "successRate": 98.5,
+    "quantity": 10000,
+    "paymentMethods": "신한은행",
+    "userRanking": "SILVER"
+  },
+  {
+    "type": "SELL",
+    "updatedAt": "2025-08-17T08:35:00",
+    "createdAt": "2025-08-17T06:00:00",
+    "userName": "anonymouse_monkey",
+    "userRating": 99.2,
+    "tradeCount": 156,
+    "price": 13,
+    "successRate": 99.2,
+    "quantity": 20000,
+    "paymentMethods": "국민은행",
+    "userRanking": "PLATINUM"
+  },
+  {
+    "type": "BUY",
+    "updatedAt": "2025-08-17T08:00:00",
+    "createdAt": "2025-08-17T08:00:00",
+    "userName": "yonadev",
+    "userRating": 97.8,
+    "tradeCount": 89,
+    "price": 13,
+    "successRate": 97.8,
+    "quantity": 30000,
+    "paymentMethods": "우리은행",
+    "userRanking": "GOLD"
+  }
+]
