@@ -1,5 +1,5 @@
 import 'package:demo_flutter/view/pages/login_page.dart';
-import 'package:demo_flutter/view/pages/onboarding_page.dart';
+import 'package:demo_flutter/view/widget_tree.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
@@ -49,7 +49,7 @@ class WelcomePage extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (context) {
-                            return OnboardingPage();
+                            return WidgetTree(title: 'P2P 거래 플랫폼');
                           },
                         ),
                       );

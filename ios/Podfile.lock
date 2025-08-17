@@ -1,22 +1,69 @@
 PODS:
+  - AppAuth (1.7.6):
+    - AppAuth/Core (= 1.7.6)
+    - AppAuth/ExternalUserAgent (= 1.7.6)
+  - AppAuth/Core (1.7.6)
+  - AppAuth/ExternalUserAgent (1.7.6):
+    - AppAuth/Core
+  - BCryptSwift (1.1)
   - Flutter (1.0.0)
+  - flutter_secure_storage (6.0.0):
+    - Flutter
+  - path_provider_foundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
   - shared_preferences_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
+  - wepin_flutter_common (0.0.1):
+    - Flutter
+  - wepin_flutter_login_lib (0.0.1):
+    - AppAuth (~> 1.7.5)
+    - BCryptSwift (~> 1.1)
+    - Flutter
+  - wepin_flutter_storage (0.0.1):
+    - Flutter
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
+  - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
+  - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
+  - wepin_flutter_common (from `.symlinks/plugins/wepin_flutter_common/ios`)
+  - wepin_flutter_login_lib (from `.symlinks/plugins/wepin_flutter_login_lib/ios`)
+  - wepin_flutter_storage (from `.symlinks/plugins/wepin_flutter_storage/ios`)
+
+SPEC REPOS:
+  trunk:
+    - AppAuth
+    - BCryptSwift
 
 EXTERNAL SOURCES:
   Flutter:
     :path: Flutter
+  flutter_secure_storage:
+    :path: ".symlinks/plugins/flutter_secure_storage/ios"
+  path_provider_foundation:
+    :path: ".symlinks/plugins/path_provider_foundation/darwin"
   shared_preferences_foundation:
     :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
+  wepin_flutter_common:
+    :path: ".symlinks/plugins/wepin_flutter_common/ios"
+  wepin_flutter_login_lib:
+    :path: ".symlinks/plugins/wepin_flutter_login_lib/ios"
+  wepin_flutter_storage:
+    :path: ".symlinks/plugins/wepin_flutter_storage/ios"
 
 SPEC CHECKSUMS:
+  AppAuth: d4f13a8fe0baf391b2108511793e4b479691fb73
+  BCryptSwift: f69992ea5685f6714260842c2770688043b89ab2
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  flutter_secure_storage: d33dac7ae2ea08509be337e775f6b59f1ff45f12
+  path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
+  wepin_flutter_common: 505ac18aa0e2b9878d5d728df83d3ecd8bb93db9
+  wepin_flutter_login_lib: 9ba2241f48e8d434199b1974be9186f42d7df1c3
+  wepin_flutter_storage: 3400570869672a0e9bd4a11751ac28377fbe8967
 
 PODFILE CHECKSUM: 4305caec6b40dde0ae97be1573c53de1882a07e5
 

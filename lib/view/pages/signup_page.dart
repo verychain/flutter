@@ -1,6 +1,7 @@
+import 'dart:convert';
 import 'package:demo_flutter/data/constants.dart';
-import 'package:demo_flutter/view/pages/login_page.dart';
 import 'package:demo_flutter/view/widget_tree.dart';
+import 'package:demo_flutter/view/pages/signup_complete_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -16,29 +17,44 @@ class _SignupPageState extends State<SignupPage> {
   late TextEditingController controllerEmail;
   late TextEditingController controllerPassword;
   late TextEditingController controllerPasswordConfirm;
+  late TextEditingController controllerNickname;
   late TextEditingController controllerVerificationCode;
 
   // 상태 변수들
   bool isPasswordVisible = false;
   bool isPasswordConfirmVisible = false;
   bool isEmailVerified = false;
+  bool isNicknameValid = false;
   bool isVerificationCodeSent = false;
+  bool passwordConfirmMatched = true;
   String? selectedCountry;
   String? errorMessage;
 
+  // 비밀번호 규칙 상태 변수
+  bool lengthQualified = false;
+  bool hasUppercase = false;
+  bool hasLowercase = false;
+  bool hasNumber = false;
+  bool hasSpecialChar = false;
+
+  // 닉네임 규칙 상태 변수
+  bool nicknameLengthQualified = false;
+  bool nicknameAllowedChars = false;
+  bool nicknameStartEndValid = false;
+  bool nicknameNoInvalidSpaceOrSpecial = true; // 하나의 규칙으로 합침
+
   // 국가 리스트
-  final List<String> countries = [
-    '대한민국',
-    '미국',
-    '일본',
-    '중국',
-    '영국',
-    '독일',
-    '프랑스',
-    '캐나다',
-    '호주',
-    '싱가포르',
-  ];
+
+  List<Map<String, dynamic>> countryList = [];
+
+  Future<void> loadCountryList() async {
+    final String jsonString = await rootBundle.loadString(
+      'assets/countries.json',
+    );
+    final List<dynamic> jsonData = json.decode(jsonString);
+    countryList = jsonData.map((e) => Map<String, dynamic>.from(e)).toList();
+    setState(() {});
+  }
 
   @override
   void initState() {
@@ -47,6 +63,8 @@ class _SignupPageState extends State<SignupPage> {
     controllerPassword = TextEditingController();
     controllerPasswordConfirm = TextEditingController();
     controllerVerificationCode = TextEditingController();
+    controllerNickname = TextEditingController(); // 닉네임 컨트롤러 초기화 추가
+    loadCountryList(); // 국가 리스트 로드
   }
 
   @override
@@ -56,6 +74,38 @@ class _SignupPageState extends State<SignupPage> {
     controllerPasswordConfirm.dispose();
     controllerVerificationCode.dispose();
     super.dispose();
+  }
+
+  // 비밀번호 규칙별 체크 함수
+  void validatePasswordRules(String password) {
+    setState(() {
+      lengthQualified = password.length >= 12 && password.length <= 128;
+      hasUppercase = password.contains(RegExp(r'[A-Z]'));
+      hasLowercase = password.contains(RegExp(r'[a-z]'));
+      hasNumber = password.contains(RegExp(r'[0-9]'));
+      hasSpecialChar = password.contains(
+        RegExp(r'[!@#$%^&*(),.?":{}|<>_\-+=~`/\[\]\\]'),
+      );
+    });
+  }
+
+  // 닉네임 규칙 체크 함수
+  void validateNicknameRules(String nickname) {
+    setState(() {
+      nicknameLengthQualified = nickname.length >= 2 && nickname.length <= 20;
+      nicknameAllowedChars = RegExp(
+        r'^[A-Za-z0-9가-힣 _.\-]+$',
+      ).hasMatch(nickname);
+      nicknameStartEndValid =
+          nickname.isNotEmpty &&
+          RegExp(r'^[A-Za-z0-9가-힣]').hasMatch(nickname[0]) &&
+          RegExp(r'[A-Za-z0-9가-힣]$').hasMatch(nickname[nickname.length - 1]);
+      // 금지: 앞뒤 공백, 연속 공백, 연속 특수문자(__, .., -- 등)
+      nicknameNoInvalidSpaceOrSpecial =
+          nickname == nickname.trim() &&
+          !nickname.contains('  ') &&
+          !RegExp(r'(\.\.|__|--|  )').hasMatch(nickname);
+    });
   }
 
   @override
@@ -164,7 +214,7 @@ class _SignupPageState extends State<SignupPage> {
                       ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(
-                          4.0,
+                          12.0,
                         ), // 15.0에서 4.0으로 변경
                       ),
                     ),
@@ -250,6 +300,9 @@ class _SignupPageState extends State<SignupPage> {
               TextField(
                 controller: controllerPassword,
                 obscureText: !isPasswordVisible,
+                onChanged: (value) {
+                  validatePasswordRules(value);
+                },
                 decoration: InputDecoration(
                   hintText: '비밀번호',
                   hintStyle: TextStyle(color: Colors.grey.shade400),
@@ -285,12 +338,30 @@ class _SignupPageState extends State<SignupPage> {
                 ),
               ),
 
+              // 비밀번호 규칙 체크 UI
+              SizedBox(height: 8.0),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildRuleCheck(lengthQualified, '12자 이상 128자 이하'),
+                  _buildRuleCheck(hasUppercase, '대문자 포함(A-Z)'),
+                  _buildRuleCheck(hasLowercase, '소문자 포함(a-z)'),
+                  _buildRuleCheck(hasNumber, '숫자 포함'),
+                  _buildRuleCheck(hasSpecialChar, '특수문자 포함'),
+                ],
+              ),
+
               SizedBox(height: 20.0),
 
               // 비밀번호 확인
               TextField(
                 controller: controllerPasswordConfirm,
                 obscureText: !isPasswordConfirmVisible,
+                onChanged: (value) {
+                  setState(() {
+                    passwordConfirmMatched = value == controllerPassword.text;
+                  });
+                },
                 decoration: InputDecoration(
                   hintText: '비밀번호 확인',
                   hintStyle: TextStyle(color: Colors.grey.shade400),
@@ -325,17 +396,21 @@ class _SignupPageState extends State<SignupPage> {
                   ),
                 ),
               ),
+              // 비밀번호 확인 규칙 체크 UI
+              SizedBox(height: 8.0),
+              _buildRuleCheck(passwordConfirmMatched, '비밀번호와 동일하게 입력'),
 
               SizedBox(height: 20.0),
 
-              // 거주국가 선택
-              DropdownButtonFormField<String>(
-                value: selectedCountry,
-                hint: Text(
-                  '거주국가 선택',
-                  style: TextStyle(color: Colors.grey.shade400),
-                ),
+              // 닉네임
+              TextField(
+                controller: controllerNickname,
+                onChanged: (value) {
+                  validateNicknameRules(value);
+                },
                 decoration: InputDecoration(
+                  hintText: '닉네임',
+                  hintStyle: TextStyle(color: Colors.grey.shade400),
                   contentPadding: EdgeInsets.symmetric(
                     horizontal: 16.0,
                     vertical: 12.0,
@@ -353,20 +428,82 @@ class _SignupPageState extends State<SignupPage> {
                     borderSide: BorderSide(color: AppColors.primary),
                   ),
                 ),
-                items: countries.map((String country) {
-                  return DropdownMenuItem<String>(
-                    value: country,
-                    child: Text(country),
+              ),
+
+              // 닉네임 규칙 체크 UI
+              SizedBox(height: 8.0),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildRuleCheck(nicknameLengthQualified, '2자 이상 20자 이하'),
+                  _buildRuleCheck(
+                    nicknameAllowedChars,
+                    '한글/영문/숫자/띄어쓰기/언더바/점/하이픈 포함 가능',
+                  ),
+                  _buildRuleCheck(nicknameStartEndValid, '한글/영문/숫자로 시작하고 끝나기'),
+                  _buildRuleCheck(
+                    nicknameNoInvalidSpaceOrSpecial,
+                    '앞뒤 공백, 연속 공백, 연속 특수문자(__, .., -- 등) 포함하지 않기',
+                  ),
+                ],
+              ),
+
+              SizedBox(height: 20.0),
+
+              // 거주국가 선택
+              TextField(
+                readOnly: true,
+                controller: TextEditingController(text: selectedCountry ?? ''),
+                decoration: InputDecoration(
+                  hintText: '거주국가 선택',
+                  hintStyle: TextStyle(color: Colors.grey.shade400),
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 12.0,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15.0),
+                    borderSide: BorderSide(color: Colors.grey.shade400),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15.0),
+                    borderSide: BorderSide(color: Colors.grey.shade400),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15.0),
+                    borderSide: BorderSide(color: Colors.blue),
+                  ),
+                  suffixIcon: Icon(
+                    Icons.arrow_drop_down,
+                    color: Colors.grey.shade400,
+                  ),
+                ),
+                onTap: () async {
+                  final countryName = await showDialog<String>(
+                    context: context,
+                    builder: (context) {
+                      return SimpleDialog(
+                        title: Text('거주국가 선택'),
+                        children: countryList.map((country) {
+                          return SimpleDialogOption(
+                            onPressed: () {
+                              Navigator.pop(context, country['name'] as String);
+                            },
+                            child: Text(country['name'] as String),
+                          );
+                        }).toList(),
+                      );
+                    },
                   );
-                }).toList(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    selectedCountry = newValue;
-                  });
+                  if (countryName != null) {
+                    setState(() {
+                      selectedCountry = countryName;
+                    });
+                  }
                 },
               ),
 
-              SizedBox(height: 16.0),
+              SizedBox(height: 32.0),
 
               // 오류 메시지 표시
               if (errorMessage != null)
@@ -465,10 +602,58 @@ class _SignupPageState extends State<SignupPage> {
     }
   }
 
+  Widget _buildRuleCheck(bool isChecked, String text) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(
+          Icons.check,
+          color: isChecked ? Colors.green : Colors.grey,
+          size: 18.0,
+        ),
+        SizedBox(width: 6.0),
+        Expanded(
+          child: Text(
+            text,
+            softWrap: true,
+            maxLines: 2, // 필요시 더 늘릴 수 있음
+            style: TextStyle(
+              color: isChecked ? Colors.green.shade700 : Colors.grey.shade600,
+              fontSize: 13.0,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  bool validatePassword(String password) {
+    final lengthQualified = password.length >= 12 && password.length <= 128;
+    final hasUppercase = password.contains(RegExp(r'[A-Z]'));
+    final hasLowercase = password.contains(RegExp(r'[a-z]'));
+    final hasNumber = password.contains(RegExp(r'[0-9]'));
+    final hasSpecialChar = password.contains(
+      RegExp(r'[!@#$%^&*(),.?":{}|<>_\-+=~`/\[\]\\]'),
+    );
+
+    return lengthQualified &&
+        hasUppercase &&
+        hasLowercase &&
+        hasNumber &&
+        hasSpecialChar;
+  }
+
   void onSignupPressed() {
     setState(() {
       errorMessage = null;
     });
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => SignupCompletePage()),
+      (route) => false,
+    );
 
     // 유효성 검사
     if (!isEmailVerified) {
@@ -478,9 +663,9 @@ class _SignupPageState extends State<SignupPage> {
       return;
     }
 
-    if (controllerPassword.text.length < 6) {
+    if (!validatePassword(controllerPassword.text)) {
       setState(() {
-        errorMessage = '비밀번호는 6자리 이상이어야 합니다.';
+        errorMessage = '비밀번호는 12자 이상 128자 이하, 대문자/소문자/숫자/특수문자를 모두 포함해야 합니다.';
       });
       return;
     }
