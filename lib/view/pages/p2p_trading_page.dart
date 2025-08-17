@@ -5,7 +5,8 @@ import 'package:demo_flutter/model/trade_card.dart';
 import 'package:demo_flutter/view/widgets/trade_switch_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:demo_flutter/view/widgets/trade_card_widget.dart';
-import 'dart:math'; // 랜덤 함수를 위해 추가
+import 'package:demo_flutter/view/widgets/trade_sort_dropdown.dart';
+import 'package:demo_flutter/model/trade_sort_type.dart';
 
 class P2PTradingPage extends StatefulWidget {
   const P2PTradingPage({super.key});
@@ -20,6 +21,11 @@ class _P2PTradingPageState extends State<P2PTradingPage>
   late TabController _tabController;
 
   late List<TradeCard> trades = []; // 모든 거래를 한 바구니에 담음
+
+  TradeSortType _sortType = TradeSortType.price;
+
+  // 등급 순서 정의
+  final List<String> rankingOrder = ['BRONZE', 'SILVER', 'GOLD', 'PLATINUM'];
 
   @override
   void initState() {
@@ -67,10 +73,8 @@ class _P2PTradingPageState extends State<P2PTradingPage>
     return Scaffold(
       body: Column(
         children: [
-          // 배너 광고
           _buildBannerAd(),
 
-          // 매수/매도 스위치 버튼
           TradeSwitchWidget(
             isBuySelected: isBuySelected,
             onChanged: (value) {
@@ -80,7 +84,26 @@ class _P2PTradingPageState extends State<P2PTradingPage>
             },
           ),
 
-          // 거래 카드 리스트
+          // 정렬 필터 영역 (콤보박스 스타일)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TradeSortDropdown(
+                  sortType: _sortType,
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() {
+                        _sortType = value;
+                      });
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+
           Expanded(child: _buildTradeList()),
         ],
       ),
@@ -154,19 +177,38 @@ class _P2PTradingPageState extends State<P2PTradingPage>
   }
 
   Widget _buildTradeList() {
-    // switch 버튼 상태에 따라 필터링
     final filteredTrades = trades
         .where(
           (trade) => isBuySelected ? trade.type == 'BUY' : trade.type == 'SELL',
         )
         .toList();
 
+    // 정렬 적용
+    List<TradeCard> sortedTrades = [...filteredTrades];
+    switch (_sortType) {
+      case TradeSortType.price:
+        sortedTrades.sort((a, b) => b.price.compareTo(a.price));
+        break;
+      case TradeSortType.ranking:
+        sortedTrades.sort(
+          (a, b) => rankingOrder
+              .indexOf(b.userRanking)
+              .compareTo(rankingOrder.indexOf(a.userRanking)),
+        );
+        break;
+      case TradeSortType.totalAmount:
+        sortedTrades.sort(
+          (a, b) => (b.price * b.quantity).compareTo(a.price * a.quantity),
+        );
+        break;
+    }
+
     return ListView.builder(
       padding: EdgeInsets.symmetric(horizontal: 16.0),
-      itemCount: filteredTrades.length,
+      itemCount: sortedTrades.length,
       itemBuilder: (context, index) {
         return TradeCardWidget(
-          trade: filteredTrades[index],
+          trade: sortedTrades[index],
           isBuySelected: isBuySelected,
           formatTimeAgo: _formatTimeAgo,
           formatNumber: _formatNumber,

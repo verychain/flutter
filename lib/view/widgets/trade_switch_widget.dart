@@ -14,7 +14,7 @@ class TradeSwitchWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      margin: EdgeInsets.symmetric(horizontal: 16.0),
       padding: EdgeInsets.all(3.0),
       decoration: BoxDecoration(
         color: Colors.black87,
