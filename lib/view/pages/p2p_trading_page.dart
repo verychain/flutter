@@ -1,4 +1,5 @@
 import 'package:demo_flutter/data/constants.dart';
+import 'package:demo_flutter/view/widgets/trade_switch_widget.dart';
 import 'package:flutter/material.dart';
 import 'dart:math'; // 랜덤 함수를 위해 추가
 
@@ -135,7 +136,14 @@ class _P2PTradingPageState extends State<P2PTradingPage>
           _buildBannerAd(),
 
           // 매수/매도 스위치 버튼
-          _buildTradeSwitch(),
+          TradeSwitchWidget(
+            isBuySelected: isBuySelected,
+            onChanged: (value) {
+              setState(() {
+                isBuySelected = value;
+              });
+            },
+          ),
 
           // 거래 카드 리스트
           Expanded(child: _buildTradeList()),
@@ -258,7 +266,7 @@ class _P2PTradingPageState extends State<P2PTradingPage>
                   boxShadow: !isBuySelected
                       ? [
                           BoxShadow(
-                            color: AppColors.sellColor.withOpacity(0.3),
+                            color: AppColors.sellColor,
                             blurRadius: 8.0,
                             offset: Offset(0, 2),
                           ),
