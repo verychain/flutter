@@ -64,7 +64,7 @@ class TransactionMethod extends StatelessWidget {
             backgroundColor: selectedIndex == index
                 ? AppColors.primary
                 : Colors.white,
-            side: BorderSide(color: Colors.grey.shade100, width: 1),
+            side: BorderSide(color: Colors.grey.shade300, width: 1),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(4),
             ),

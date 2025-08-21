@@ -60,7 +60,7 @@ class TokenInfo extends StatelessWidget {
                     SizedBox(width: 4),
 
                     Text(
-                      '${deltaDay >= 0 ? '+' : '-'}${deltaDay.abs()}',
+                      '${deltaDay >= 0 ? '+' : '-'}${deltaDay.abs()}%',
                       style: TextStyle(
                         fontSize: 14,
                         color: deltaDay >= 0 ? Colors.red : Colors.blue,
@@ -120,7 +120,7 @@ class TokenInfo extends StatelessWidget {
                     ),
                     SizedBox(width: 4),
                     Text(
-                      '${deltaWeek >= 0 ? '+' : '-'}${deltaWeek.abs()}',
+                      '${deltaWeek >= 0 ? '+' : '-'}${deltaWeek.abs()}%',
                       style: TextStyle(
                         fontSize: 14,
                         color: deltaWeek >= 0 ? Colors.red : Colors.blue,

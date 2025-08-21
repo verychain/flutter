@@ -3,6 +3,7 @@ import 'package:demo_flutter/view/widgets/buy_sell_toggle.dart';
 import 'package:demo_flutter/view/widgets/offer_amount_box.dart';
 import 'package:demo_flutter/view/widgets/token_info.dart';
 import 'package:demo_flutter/view/widgets/transaction_method.dart';
+import 'package:demo_flutter/view/widgets/sell_modal.dart';
 import 'package:flutter/material.dart';
 
 class CreateOfferPage extends StatefulWidget {
@@ -16,6 +17,7 @@ class _CreateOfferPageState extends State<CreateOfferPage> {
   final priceController = TextEditingController();
   final quantityController = TextEditingController();
   final totalController = TextEditingController();
+  final double maxQuantity = 100.0; // 최대 수량
 
   bool isEditingTotal = false;
   bool isBuySelected = true;
@@ -85,62 +87,136 @@ class _CreateOfferPageState extends State<CreateOfferPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('거래 등록하기'), centerTitle: true),
-      body: Column(
+      resizeToAvoidBottomInset: true,
+      body: Stack(
         children: [
-          Expanded(
+          SingleChildScrollView(
+            child: Column(
+              children: [
+                Container(
+                  color: Colors.white,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TokenInfo(
+                        assetName: assetName,
+                        avg24h: avg24h,
+                        deltaDay: deltaDay,
+                        high: high,
+                        avg7d: avg7d,
+                        deltaWeek: deltaWeek,
+                        low: low,
+                      ),
+                      SizedBox(
+                        height: 8,
+                        child: Container(color: Colors.grey.shade200),
+                      ),
+                      BuySellToggle(
+                        isBuySelected: isBuySelected,
+                        onChanged: (value) {
+                          setState(() {
+                            isBuySelected = value;
+                          });
+                        },
+                      ),
+                      SizedBox(height: 24),
+                      GestureDetector(
+                        behavior: HitTestBehavior.translucent,
+                        onTap: () {
+                          FocusScope.of(context).unfocus();
+                        },
+                        child: OfferAmountBox(
+                          priceController: priceController,
+                          quantityController: quantityController,
+                          maxQuantity: maxQuantity,
+                          totalController: totalController,
+                          isBuySelected: isBuySelected,
+                          onPriceMinus: () {
+                            final price =
+                                double.tryParse(priceController.text) ?? 0.0;
+                            final newPrice = (price - 0.1).clamp(
+                              0,
+                              double.infinity,
+                            );
+                            priceController.text = newPrice.toStringAsFixed(1);
+                          },
+                          onPricePlus: () {
+                            final price =
+                                double.tryParse(priceController.text) ?? 0.0;
+                            final newPrice = price + 0.1;
+                            priceController.text = newPrice.toStringAsFixed(1);
+                          },
+                        ),
+                      ),
+                      SizedBox(
+                        height: 8,
+                        child: Container(color: Colors.grey.shade200),
+                      ),
+                      TransactionMethod(
+                        selectedIndex: selectedMethod ?? -1,
+                        onSelected: onMethodSelected,
+                      ),
+                      SizedBox(height: 80), // 버튼 영역 확보용
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
             child: Container(
               color: Colors.white,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TokenInfo(
-                    assetName: assetName,
-                    avg24h: avg24h,
-                    deltaDay: deltaDay,
-                    high: high,
-                    avg7d: avg7d,
-                    deltaWeek: deltaWeek,
-                    low: low,
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              child: SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: isBuySelected
+                        ? AppColors.buyColor
+                        : AppColors.sellColor,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    elevation: 0,
                   ),
-                  SizedBox(
-                    height: 8,
-                    child: Container(color: Colors.grey.shade200),
+                  onPressed: () {
+                    if (isBuySelected) {
+                      // 매수 등록 처리 로직
+                    } else {
+                      // 매도 등록 모달 띄우기
+                      final price = priceController.text;
+                      final quantity = quantityController.text;
+                      final commission =
+                          (double.tryParse(quantity) ?? 0) * 0.05;
+                      final totalPrice = totalController.text;
+                      showDialog(
+                        context: context,
+                        builder: (context) => SellModal(
+                          price: price,
+                          commission: commission.toStringAsFixed(2),
+                          quantityToSend: quantity,
+                          totalPrice: totalPrice,
+                          onConfirm: () {
+                            // 매도 등록 처리
+                            Navigator.of(context).pop();
+                          },
+                          onCancel: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      );
+                    }
+                  },
+                  child: Text(
+                    isBuySelected ? '매수 등록' : '매도 등록',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  BuySellToggle(
-                    isBuySelected: isBuySelected,
-                    onChanged: (value) {
-                      setState(() {
-                        isBuySelected = value;
-                      });
-                    },
-                  ),
-                  SizedBox(height: 24),
-                  OfferAmountBox(
-                    priceController: priceController,
-                    quantityController: quantityController,
-                    totalController: totalController,
-                    onPriceMinus: () {
-                      final price =
-                          double.tryParse(priceController.text) ?? 0.0;
-                      final newPrice = (price - 0.1).clamp(0, double.infinity);
-                      priceController.text = newPrice.toStringAsFixed(1);
-                    },
-                    onPricePlus: () {
-                      final price =
-                          double.tryParse(priceController.text) ?? 0.0;
-                      final newPrice = price + 0.1;
-                      priceController.text = newPrice.toStringAsFixed(1);
-                    },
-                  ),
-                  SizedBox(
-                    height: 8,
-                    child: Container(color: Colors.grey.shade200),
-                  ),
-                  TransactionMethod(
-                    selectedIndex: selectedMethod ?? -1,
-                    onSelected: onMethodSelected,
-                  ),
-                ],
+                ),
               ),
             ),
           ),
