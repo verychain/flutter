@@ -16,7 +16,11 @@ class NavbarWidget extends StatelessWidget {
               icon: Icon(Icons.swap_horiz_rounded),
               label: "거래",
             ),
-            NavigationDestination(icon: Icon(Icons.person), label: 'Profile'),
+            NavigationDestination(
+              icon: Icon(Icons.account_balance_wallet_outlined),
+              label: '지갑',
+            ),
+            NavigationDestination(icon: Icon(Icons.person), label: '프로필'),
           ],
           selectedIndex: selectedPage,
           onDestinationSelected: (value) => {

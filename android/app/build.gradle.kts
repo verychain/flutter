@@ -28,6 +28,10 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        // Deep Link 설정 => 리디렉션 스킴 형식: wepin. + Wepin 앱 ID
+        manifestPlaceholders.put("appAuthRedirectScheme", "wepin.5d915621b2ecbdc5e27adfe70afbee31")
+        // ↑ YOUR_WEPIN_APPID 부분을 실제 앱 ID로 대체
     }
 
     buildTypes {

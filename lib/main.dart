@@ -3,8 +3,11 @@ import 'package:demo_flutter/data/notifiers.dart';
 import 'package:demo_flutter/view/pages/welcome_page.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load();
   runApp(const MyApp());
 }
 
@@ -16,8 +19,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  // This widget is the root of your application.
-
   @override
   void initState() {
     super.initState();

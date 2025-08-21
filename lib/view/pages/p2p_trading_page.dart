@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:demo_flutter/view/widgets/trade_card_widget.dart';
 import 'package:demo_flutter/view/widgets/trade_sort_dropdown.dart';
 import 'package:demo_flutter/model/trade_sort_type.dart';
+import 'package:demo_flutter/view/pages/create_offer_page.dart'; // <-- CreateOfferPage 임포트
 
 class P2PTradingPage extends StatefulWidget {
   const P2PTradingPage({super.key});
@@ -109,19 +110,9 @@ class _P2PTradingPageState extends State<P2PTradingPage>
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          // 거래 등록하기 동작 (예시: 다이얼로그)
-          showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: Text('거래 등록하기'),
-              content: Text('거래 등록 화면으로 이동합니다.'),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text('닫기'),
-                ),
-              ],
-            ),
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => CreateOfferPage()),
           );
         },
         label: Text(
@@ -130,10 +121,8 @@ class _P2PTradingPageState extends State<P2PTradingPage>
         ),
         icon: Icon(Icons.add, color: Colors.white),
         backgroundColor: AppColors.primary,
-        elevation: 0, // box shadow 제거
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(25), // border radius 25px
-        ),
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
       ),
       floatingActionButtonLocation:
           FloatingActionButtonLocation.endFloat, // 하단 오른쪽
