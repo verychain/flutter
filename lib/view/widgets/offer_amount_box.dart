@@ -64,53 +64,106 @@ class OfferAmountBox extends StatelessWidget {
                     SizedBox(
                       width: 28,
                       height: 28,
-                      child: OutlinedButton(
-                        style: OutlinedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          side: BorderSide(
-                            color: Colors.grey.shade300,
-                            width: 1,
-                            style: BorderStyle.solid,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(4),
+                            bottomLeft: Radius.circular(4),
                           ),
-                          padding: EdgeInsets.zero,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.only(
-                              bottomLeft: Radius.circular(4),
-                              topLeft: Radius.circular(4),
+                          border: Border(
+                            top: BorderSide(
+                              color: Colors.grey.shade400,
+                              width: 1,
                             ),
+                            left: BorderSide(
+                              color: Colors.grey.shade400,
+                              width: 1,
+                            ),
+                            bottom: BorderSide(
+                              color: Colors.grey.shade400,
+                              width: 1,
+                            ),
+                            // right는 없음
                           ),
                         ),
-                        onPressed: onPriceMinus,
-                        child: Text(
-                          '-',
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.grey.shade600,
+                        child: OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            backgroundColor: Colors.transparent, // 배경은 컨테이너에서
+                            side: BorderSide.none, // 기본 4면 테두리 제거
+                            padding: EdgeInsets.zero,
+                            minimumSize: Size.zero, // 28x28 정확히 맞추기
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(4),
+                                bottomLeft: Radius.circular(4),
+                              ),
+                            ),
+                          ),
+                          onPressed: onPriceMinus,
+                          child: Text(
+                            '-',
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.grey.shade600,
+                            ),
                           ),
                         ),
                       ),
                     ),
+                    Container(
+                      width: 1,
+                      height: 28,
+                      color: Colors.grey.shade400,
+                    ),
                     SizedBox(
                       width: 28,
                       height: 28,
-                      child: OutlinedButton(
-                        style: OutlinedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          side: BorderSide(color: Colors.grey.shade300),
-                          padding: EdgeInsets.zero,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.only(
-                              bottomRight: Radius.circular(4),
-                              topRight: Radius.circular(4),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: const BorderRadius.only(
+                            topRight: Radius.circular(4),
+                            bottomRight: Radius.circular(4),
+                          ),
+                          border: Border(
+                            top: BorderSide(
+                              color: Colors.grey.shade400,
+                              width: 1,
+                            ),
+                            bottom: BorderSide(
+                              color: Colors.grey.shade400,
+                              width: 1,
+                            ),
+                            right: BorderSide(
+                              color: Colors.grey.shade400,
+                              width: 1,
                             ),
                           ),
                         ),
-                        onPressed: onPricePlus,
-                        child: Text(
-                          '+',
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.grey.shade600,
+
+                        child: OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+                            side: BorderSide.none,
+                            padding: EdgeInsets.zero,
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.only(
+                                bottomRight: Radius.circular(4),
+                                topRight: Radius.circular(4),
+                              ),
+                            ),
+                          ),
+                          onPressed: onPricePlus,
+                          child: Text(
+                            '+',
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.grey.shade600,
+                            ),
                           ),
                         ),
                       ),
