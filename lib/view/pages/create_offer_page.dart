@@ -1,8 +1,66 @@
 import 'package:demo_flutter/data/constants.dart';
+import 'package:demo_flutter/view/widgets/offer_amount_box.dart';
 import 'package:flutter/material.dart';
 
-class CreateOfferPage extends StatelessWidget {
+class CreateOfferPage extends StatefulWidget {
   const CreateOfferPage({super.key});
+
+  @override
+  State<CreateOfferPage> createState() => _CreateOfferPageState();
+}
+
+class _CreateOfferPageState extends State<CreateOfferPage> {
+  final priceController = TextEditingController();
+  final quantityController = TextEditingController();
+  final totalController = TextEditingController();
+
+  bool isEditingTotal = false;
+  bool isBuySelected = true; // ← 추가
+
+  @override
+  void initState() {
+    super.initState();
+
+    priceController.addListener(_onPriceOrQuantityChanged);
+    quantityController.addListener(_onPriceOrQuantityChanged);
+    totalController.addListener(_onTotalChanged);
+  }
+
+  void _onPriceOrQuantityChanged() {
+    if (isEditingTotal) return;
+    final price = double.tryParse(priceController.text) ?? 0;
+    final quantity = double.tryParse(quantityController.text) ?? 0;
+    final total = price * quantity;
+    totalController.text = total == 0
+        ? ''
+        : total.round().toString(); // 총액은 반올림해서 정수로 표기
+  }
+
+  void _onTotalChanged() {
+    isEditingTotal = true;
+    final total = int.tryParse(totalController.text) ?? 0; // 총액은 정수로 처리
+    final price = double.tryParse(priceController.text) ?? 0;
+    final quantity = double.tryParse(quantityController.text) ?? 0;
+
+    if (price > 0) {
+      final newQuantity = total / price;
+      quantityController.text = newQuantity == 0
+          ? ''
+          : newQuantity.toStringAsFixed(1);
+    } else if (quantity > 0) {
+      final newPrice = total / quantity;
+      priceController.text = newPrice == 0 ? '' : newPrice.toStringAsFixed(1);
+    }
+    isEditingTotal = false;
+  }
+
+  @override
+  void dispose() {
+    priceController.dispose();
+    quantityController.dispose();
+    totalController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -12,115 +70,120 @@ class CreateOfferPage extends StatelessWidget {
         children: [
           Expanded(
             child: Container(
-              color: Colors.grey.shade100,
-              child: Center(
-                child: Text('섹션 1', style: TextStyle(fontSize: 18.0)),
-              ),
-            ),
-          ),
-          Expanded(
-            child: Container(
               color: Colors.white,
-              child: Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 8.0,
+                ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 6.0),
+                          child: SizedBox(
+                            width: 145,
+                            height: 35,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4.0),
+                                ),
+                                backgroundColor: isBuySelected
+                                    ? AppColors.buyColor
+                                    : Colors.white,
+                                elevation: 0,
 
-                      children: [
-                        SizedBox(
-                          width: 150,
-                          height: 35,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(4.0),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 24,
+                                  vertical: 4,
+                                ),
                               ),
-                              backgroundColor: AppColors.buyColor,
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 24,
-                                vertical: 4, // padding: 4px 24px
-                              ),
-                            ),
-                            onPressed: () {},
-                            child: Text(
-                              '매수 등록',
-                              style: TextStyle(
-                                fontSize: 16.0,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                              onPressed: () {
+                                setState(() {
+                                  isBuySelected = true;
+                                });
+                              },
+                              child: Text(
+                                '매수 등록',
+                                style: TextStyle(
+                                  fontSize: 16.0,
+                                  fontWeight: FontWeight.bold,
+                                  color: isBuySelected
+                                      ? Colors.white
+                                      : Colors.grey.shade400,
+                                ),
                               ),
                             ),
                           ),
                         ),
-                        SizedBox(width: 24),
-                        SizedBox(
-                          width: 150,
-                          height: 35,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(4.0),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 6.0),
+                          child: SizedBox(
+                            width: 145,
+                            height: 35,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4.0),
+                                ),
+                                backgroundColor: !isBuySelected
+                                    ? AppColors.sellColor
+                                    : Colors.white,
+                                elevation: 0,
+
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 24,
+                                  vertical: 4,
+                                ),
                               ),
-                              backgroundColor: AppColors.sellColor,
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 24,
-                                vertical: 4, // padding: 4px 24px
+                              onPressed: () {
+                                setState(() {
+                                  isBuySelected = false;
+                                });
+                              },
+                              child: Text(
+                                '매도 등록',
+                                style: TextStyle(
+                                  fontSize: 16.0,
+                                  fontWeight: FontWeight.bold,
+                                  color: !isBuySelected
+                                      ? Colors.white
+                                      : Colors.grey.shade400,
+                                ),
                               ),
                             ),
-                            onPressed: () {},
-                            child: Text(
-                              '매도 등록',
-                              style: TextStyle(
-                                fontSize: 16.0,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SizedBox(
-                          width: 120,
-                          child: TextField(
-                            decoration: InputDecoration(
-                              labelText: '가격',
-                              border: OutlineInputBorder(),
-                              isDense: true,
-                            ),
-                            keyboardType: TextInputType.number,
-                          ),
-                        ),
-                        SizedBox(width: 16),
-                        SizedBox(
-                          width: 120,
-                          child: TextField(
-                            decoration: InputDecoration(
-                              labelText: '수량',
-                              border: OutlineInputBorder(),
-                              isDense: true,
-                            ),
-                            keyboardType: TextInputType.number,
                           ),
                         ),
                       ],
                     ),
                     SizedBox(height: 24),
+                    OfferAmountBox(
+                      priceController: priceController,
+                      quantityController: quantityController,
+                      totalController: totalController,
+                      onPriceMinus: () {
+                        final price =
+                            double.tryParse(priceController.text) ?? 0.0;
+                        final newPrice = (price - 0.1).clamp(
+                          0,
+                          double.infinity,
+                        );
+                        priceController.text = newPrice.toStringAsFixed(1);
+                      },
+                      onPricePlus: () {
+                        final price =
+                            double.tryParse(priceController.text) ?? 0.0;
+                        final newPrice = price + 0.1;
+                        priceController.text = newPrice.toStringAsFixed(1);
+                      },
+                    ),
                   ],
                 ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: Container(
-              color: Colors.grey.shade100,
-              child: Center(
-                child: Text('섹션 3', style: TextStyle(fontSize: 18.0)),
               ),
             ),
           ),
