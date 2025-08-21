@@ -1,4 +1,5 @@
 import 'package:demo_flutter/data/constants.dart';
+import 'package:demo_flutter/view/widgets/buy_sell_toggle.dart';
 import 'package:demo_flutter/view/widgets/offer_amount_box.dart';
 import 'package:demo_flutter/view/widgets/token_info.dart';
 import 'package:demo_flutter/view/widgets/transaction_method.dart';
@@ -105,93 +106,13 @@ class _CreateOfferPageState extends State<CreateOfferPage> {
                     height: 8,
                     child: Container(color: Colors.grey.shade200),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 8.0,
-                          horizontal: 16.0,
-                        ),
-                        child: SizedBox(
-                          width: 145,
-                          height: 35,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(4.0),
-                              ),
-                              backgroundColor: isBuySelected
-                                  ? AppColors.buyColor
-                                  : Colors.white,
-                              elevation: 0,
-
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 24,
-                                vertical: 4,
-                              ),
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                isBuySelected = true;
-                              });
-                            },
-                            child: Text(
-                              '매수 등록',
-                              style: TextStyle(
-                                fontSize: 16.0,
-                                fontWeight: FontWeight.bold,
-                                color: isBuySelected
-                                    ? Colors.white
-                                    : Colors.grey.shade400,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 6.0,
-                          horizontal: 16.0,
-                        ),
-                        child: SizedBox(
-                          width: 145,
-                          height: 35,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(4.0),
-                              ),
-                              backgroundColor: !isBuySelected
-                                  ? AppColors.sellColor
-                                  : Colors.white,
-                              elevation: 0,
-
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 24,
-                                vertical: 4,
-                              ),
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                isBuySelected = false;
-                              });
-                            },
-                            child: Text(
-                              '매도 등록',
-                              style: TextStyle(
-                                fontSize: 16.0,
-                                fontWeight: FontWeight.bold,
-                                color: !isBuySelected
-                                    ? Colors.white
-                                    : Colors.grey.shade400,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                  BuySellToggle(
+                    isBuySelected: isBuySelected,
+                    onChanged: (value) {
+                      setState(() {
+                        isBuySelected = value;
+                      });
+                    },
                   ),
                   SizedBox(height: 24),
                   OfferAmountBox(
