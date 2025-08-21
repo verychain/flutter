@@ -1,5 +1,6 @@
 import 'package:demo_flutter/data/constants.dart';
 import 'package:demo_flutter/view/widgets/offer_amount_box.dart';
+import 'package:demo_flutter/view/widgets/token_info.dart';
 import 'package:demo_flutter/view/widgets/transaction_method.dart';
 import 'package:flutter/material.dart';
 
@@ -16,8 +17,17 @@ class _CreateOfferPageState extends State<CreateOfferPage> {
   final totalController = TextEditingController();
 
   bool isEditingTotal = false;
-  bool isBuySelected = true; // ← 추가
-  int? selectedMethod; // 아무것도 선택되지 않은 상태
+  bool isBuySelected = true;
+  int? selectedMethod;
+
+  // TokenInfo 초기값을 double로 선언
+  final String assetName = "VERY";
+  final double avg24h = 20.15;
+  final double deltaDay = 0.69;
+  final double high = 22.5;
+  final double avg7d = 19.8;
+  final double low = 19.8;
+  final double deltaWeek = -0.73;
 
   @override
   void initState() {
@@ -82,6 +92,19 @@ class _CreateOfferPageState extends State<CreateOfferPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  TokenInfo(
+                    assetName: assetName,
+                    avg24h: avg24h,
+                    deltaDay: deltaDay,
+                    high: high,
+                    avg7d: avg7d,
+                    deltaWeek: deltaWeek,
+                    low: low,
+                  ),
+                  SizedBox(
+                    height: 8,
+                    child: Container(color: Colors.grey.shade200),
+                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     crossAxisAlignment: CrossAxisAlignment.start,
