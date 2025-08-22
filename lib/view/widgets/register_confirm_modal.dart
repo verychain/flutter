@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 
-class SellModal extends StatelessWidget {
+enum RegisterType { SELL, BUY }
+
+class RegisterConfirmModal extends StatelessWidget {
+  final RegisterType type;
   final String price;
-  final String commission;
+  final String? commission;
   final String quantityToSend;
   final String totalPrice;
   final VoidCallback onConfirm;
   final VoidCallback onCancel;
 
-  const SellModal({
+  const RegisterConfirmModal({
     super.key,
+    required this.type,
     required this.price,
     required this.commission,
     required this.quantityToSend,
@@ -20,6 +24,7 @@ class SellModal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isSell = type == RegisterType.SELL;
     return AlertDialog(
       backgroundColor: Colors.white,
       contentPadding: EdgeInsets.symmetric(vertical: 32, horizontal: 24),
@@ -27,7 +32,7 @@ class SellModal extends StatelessWidget {
       title: Column(
         children: [
           Text(
-            '매도 등록',
+            isSell ? '매도 등록' : '매수 등록',
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             textAlign: TextAlign.center,
           ),
@@ -44,9 +49,9 @@ class SellModal extends StatelessWidget {
         children: [
           _infoRow('단위 가격', price, '원'),
           SizedBox(height: 12),
-          _infoRow('수수료(0.05%)', commission, '원'),
-          SizedBox(height: 12),
-          _infoRow('보낼 수량', quantityToSend, 'VERY'),
+          if (isSell) _infoRow('수수료(0.05%)', commission ?? '0', '원'),
+          if (isSell) SizedBox(height: 12),
+          _infoRow(isSell ? '보낼 수량' : '받을 수량', quantityToSend, 'VERY'),
           SizedBox(height: 12),
           _infoRow('받을 금액', totalPrice, '원'),
         ],

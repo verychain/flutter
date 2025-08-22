@@ -10,7 +10,7 @@ class OfferAmountBox extends StatefulWidget {
   final VoidCallback onPriceMinus;
   final VoidCallback onPricePlus;
   final double maxQuantity;
-  final bool isBuySelected; // ← 추가
+  final bool isBuySelected;
 
   const OfferAmountBox({
     super.key,
@@ -20,7 +20,7 @@ class OfferAmountBox extends StatefulWidget {
     required this.onPriceMinus,
     required this.onPricePlus,
     required this.maxQuantity,
-    required this.isBuySelected, // ← 추가
+    required this.isBuySelected,
   });
 
   @override
@@ -28,12 +28,11 @@ class OfferAmountBox extends StatefulWidget {
 }
 
 class _OfferAmountBoxState extends State<OfferAmountBox> {
-  double? selectedPercent; // 콤보박스용 선택값
+  double? selectedPercent;
 
   final List<double> percents = [0.1, 0.25, 0.5, 1.0];
   final List<String> labels = ['10%', '25%', '50%', '최대'];
 
-  // 수수료 제외한 최대 거래 가능 수량 계산
   double get availableQuantity => (widget.maxQuantity * 0.9995);
 
   @override
@@ -191,7 +190,7 @@ class _OfferAmountBoxState extends State<OfferAmountBox> {
             ],
           ),
           SizedBox(height: 16),
-          if (!widget.isBuySelected) // 매도 등록일 때만 노출
+          if (!widget.isBuySelected)
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -228,7 +227,7 @@ class _OfferAmountBoxState extends State<OfferAmountBox> {
                                 builder: (context) => InfoModal(
                                   title: '거래 가능 수량',
                                   description:
-                                      '${(widget.maxQuantity * 0.9995).toStringAsFixed(1)} VERY',
+                                      '${(widget.maxQuantity * 0.9995).toStringAsFixed(2)} VERY',
                                   subDescription: '0.05% 수수료와 가스비를 제외한 수량입니다.',
                                   buttonText: '확인',
                                 ),
@@ -266,11 +265,11 @@ class _OfferAmountBoxState extends State<OfferAmountBox> {
                           controller: widget.quantityController,
                           keyboardType: TextInputType.numberWithOptions(
                             decimal: true,
-                          ), // 소숫점 입력 가능
+                          ),
                           inputFormatters: [
                             FilteringTextInputFormatter.allow(
                               RegExp(r'^\d*\.?\d*'),
-                            ), // 소숫점 허용
+                            ),
                           ],
                           style: TextStyle(fontSize: 16),
                           textAlign: TextAlign.right,
@@ -282,16 +281,13 @@ class _OfferAmountBoxState extends State<OfferAmountBox> {
                           ),
                           onTap: () {
                             setState(() {
-                              // make keyboard disappear
-                              FocusScope.of(context).unfocus();
                               selectedPercent = null;
                             });
                           },
                         ),
                       ),
                       SizedBox(width: 8),
-                      widget
-                              .isBuySelected // isBuySelected를 OfferAmountBox에 전달해야 함
+                      widget.isBuySelected
                           ? Text(
                               'VERY',
                               style: TextStyle(
@@ -305,7 +301,7 @@ class _OfferAmountBoxState extends State<OfferAmountBox> {
                                 FocusScope.of(context).unfocus();
                                 widget.quantityController.text =
                                     (availableQuantity * percent)
-                                        .toStringAsFixed(2); // 수수료 제외
+                                        .toStringAsFixed(2);
                                 setState(() {
                                   selectedPercent = percent;
                                 });
@@ -317,7 +313,7 @@ class _OfferAmountBoxState extends State<OfferAmountBox> {
               ),
             ],
           ),
-          if (!widget.isBuySelected) // 매도 등록일 때만 노출
+          if (!widget.isBuySelected)
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -333,10 +329,9 @@ class _OfferAmountBoxState extends State<OfferAmountBox> {
                   child: Row(
                     children: [
                       Text(
-                        // 수수료는 실제 입력된 수량 * 0.05
                         ((double.tryParse(widget.quantityController.text) ??
                                     0) *
-                                0.0005)
+                                0.05)
                             .toStringAsFixed(2),
                         style: TextStyle(
                           fontSize: 14,

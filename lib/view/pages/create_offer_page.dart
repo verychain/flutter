@@ -3,7 +3,7 @@ import 'package:demo_flutter/view/widgets/buy_sell_toggle.dart';
 import 'package:demo_flutter/view/widgets/offer_amount_box.dart';
 import 'package:demo_flutter/view/widgets/token_info.dart';
 import 'package:demo_flutter/view/widgets/transaction_method.dart';
-import 'package:demo_flutter/view/widgets/sell_modal.dart';
+import 'package:demo_flutter/view/widgets/register_confirm_modal.dart';
 import 'package:flutter/material.dart';
 
 class CreateOfferPage extends StatefulWidget {
@@ -116,6 +116,12 @@ class _CreateOfferPageState extends State<CreateOfferPage> {
                         onChanged: (value) {
                           setState(() {
                             isBuySelected = value;
+                            // 매수/매도 전환 시 입력값 초기화
+                            priceController.clear();
+                            quantityController.clear();
+                            totalController.clear();
+                            selectedMethod = null;
+                            // OfferAmountBox 내부에서 사용하는 selectedPercent도 OfferAmountBox에서 초기화됨
                           });
                         },
                       ),
@@ -184,34 +190,42 @@ class _CreateOfferPageState extends State<CreateOfferPage> {
                     ),
                     elevation: 0,
                   ),
-                  onPressed: () {
-                    if (isBuySelected) {
-                      // 매수 등록 처리 로직
-                    } else {
-                      // 매도 등록 모달 띄우기
-                      final price = priceController.text;
-                      final quantity = quantityController.text;
-                      final commission =
-                          (double.tryParse(quantity) ?? 0) * 0.05;
-                      final totalPrice = totalController.text;
-                      showDialog(
-                        context: context,
-                        builder: (context) => SellModal(
-                          price: price,
-                          commission: commission.toStringAsFixed(2),
-                          quantityToSend: quantity,
-                          totalPrice: totalPrice,
-                          onConfirm: () {
-                            // 매도 등록 처리
-                            Navigator.of(context).pop();
-                          },
-                          onCancel: () {
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                      );
-                    }
-                  },
+                  onPressed:
+                      (priceController.text.isNotEmpty &&
+                          quantityController.text.isNotEmpty &&
+                          selectedMethod != null)
+                      ? () {
+                          final price = priceController.text;
+                          final quantity = quantityController.text;
+                          final commission =
+                              (double.tryParse(quantity) ?? 0) * 0.05;
+                          final totalPrice = totalController.text;
+
+                          showDialog(
+                            context: context,
+                            builder: (context) => RegisterConfirmModal(
+                              type: isBuySelected
+                                  ? RegisterType.BUY
+                                  : RegisterType.SELL,
+                              price: price,
+                              commission: isBuySelected
+                                  ? null
+                                  : commission.toStringAsFixed(
+                                      2,
+                                    ), // 매수일 때는 수수료 null
+                              quantityToSend: quantity,
+                              totalPrice: totalPrice,
+                              onConfirm: () {
+                                // 등록 처리
+                                Navigator.of(context).pop();
+                              },
+                              onCancel: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          );
+                        }
+                      : null, // 필수값이 없으면 비활성화
                   child: Text(
                     isBuySelected ? '매수 등록' : '매도 등록',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
