@@ -38,7 +38,7 @@ class _OfferAmountBoxState extends State<OfferAmountBox> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 56.0),
+      padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 16.0),
       child: Column(
         children: [
           Row(
@@ -189,14 +189,17 @@ class _OfferAmountBoxState extends State<OfferAmountBox> {
               ),
             ],
           ),
-          SizedBox(height: 16),
+          if (!widget.isBuySelected) SizedBox(height: 16),
           if (!widget.isBuySelected)
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Padding(
                   padding: EdgeInsets.only(left: 10),
-                  child: Text("최대 거래 가능", style: TextStyle(fontSize: 16)),
+                  child: Text(
+                    "최대 거래 가능",
+                    style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
+                  ),
                 ),
                 Padding(
                   padding: EdgeInsets.only(right: 10),
@@ -205,7 +208,7 @@ class _OfferAmountBoxState extends State<OfferAmountBox> {
                       Text(
                         (widget.maxQuantity * 0.9995).toStringAsFixed(2),
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 14,
                           fontWeight: FontWeight.w400,
                         ),
                       ),

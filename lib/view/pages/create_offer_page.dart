@@ -1,4 +1,6 @@
 import 'package:demo_flutter/data/constants.dart';
+import 'package:demo_flutter/view/pages/register_complete_page.dart';
+import 'package:demo_flutter/view/pages/signup_complete_page.dart';
 import 'package:demo_flutter/view/widgets/buy_sell_toggle.dart';
 import 'package:demo_flutter/view/widgets/offer_amount_box.dart';
 import 'package:demo_flutter/view/widgets/token_info.dart';
@@ -216,8 +218,13 @@ class _CreateOfferPageState extends State<CreateOfferPage> {
                               quantityToSend: quantity,
                               totalPrice: totalPrice,
                               onConfirm: () {
-                                // 등록 처리
-                                Navigator.of(context).pop();
+                                // 등록 완료 페이지로 이동
+                                Navigator.of(context).pushReplacement(
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        RegisterCompletePage(),
+                                  ),
+                                );
                               },
                               onCancel: () {
                                 Navigator.of(context).pop();

@@ -6,7 +6,7 @@ import 'package:demo_flutter/view/widgets/trade_switch_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:demo_flutter/view/widgets/trade_card_widget.dart';
 import 'package:demo_flutter/view/widgets/trade_sort_dropdown.dart';
-import 'package:demo_flutter/model/trade_sort_type.dart';
+import 'package:demo_flutter/model/type.dart';
 import 'package:demo_flutter/view/pages/create_offer_page.dart'; // <-- CreateOfferPage 임포트
 
 class P2PTradingPage extends StatefulWidget {
@@ -199,32 +199,8 @@ class _P2PTradingPageState extends State<P2PTradingPage>
         return TradeCardWidget(
           trade: sortedTrades[index],
           isBuySelected: isBuySelected,
-          formatTimeAgo: _formatTimeAgo,
-          formatNumber: _formatNumber,
         );
       },
     );
-  }
-
-  String _formatNumber(int number) {
-    return number.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]},',
-    );
-  }
-
-  String _formatTimeAgo(DateTime dateTime) {
-    final now = DateTime.now();
-    final difference = now.difference(dateTime);
-
-    if (difference.inDays > 0) {
-      return '${difference.inDays}일전';
-    } else if (difference.inHours > 0) {
-      return '${difference.inHours}시간전';
-    } else if (difference.inMinutes > 0) {
-      return '${difference.inMinutes}분전';
-    } else {
-      return '방금전';
-    }
   }
 }

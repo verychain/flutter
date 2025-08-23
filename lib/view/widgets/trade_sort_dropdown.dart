@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:demo_flutter/model/trade_sort_type.dart';
+import 'package:demo_flutter/model/type.dart';
 
 class TradeSortDropdown extends StatelessWidget {
   final TradeSortType sortType;

@@ -15,7 +15,9 @@ class AppColors {
   static const Color secondary = Color.fromARGB(255, 51, 124, 243);
   static const Color accent = Color.fromARGB(255, 124, 243, 51);
   static const Color sellColor = Color.fromRGBO(83, 134, 241, 1);
+  static const Color sellColorMuted = Color.fromRGBO(83, 134, 241, 0.4);
   static const Color buyColor = Color(0xFFFF6467);
+  static const Color buyColorMuted = Color.fromRGBO(255, 100, 103, 0.4);
 
   // 다른 색상들도 추가 가능
   static const Color textPrimary = Colors.black87;
