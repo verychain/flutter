@@ -3,12 +3,11 @@ import 'package:demo_flutter/data/notifiers.dart';
 import 'package:demo_flutter/view/pages/p2p_trading_page.dart';
 import 'package:demo_flutter/view/pages/profile_page.dart';
 import 'package:demo_flutter/view/pages/settings_page.dart';
-import 'package:demo_flutter/view/pages/wallet_page.dart';
 import 'package:demo_flutter/view/widgets/navbar_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-List<Widget> pages = [P2PTradingPage(), WalletPage(), ProfilePage()];
+List<Widget> pages = [P2PTradingPage(), ProfilePage()];
 
 class WidgetTree extends StatelessWidget {
   final String? title;
@@ -16,7 +15,7 @@ class WidgetTree extends StatelessWidget {
   const WidgetTree({super.key, this.title});
 
   // 페이지별 제목 정의 (기본값들)
-  final List<String> pageTitles = const ['P2P', '지갑', '프로필'];
+  final List<String> pageTitles = const ['P2P', '프로필'];
 
   @override
   Widget build(BuildContext context) {
