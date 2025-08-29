@@ -6,8 +6,8 @@ class TradeCard {
   final String type;
   final int tradeCount;
   final double successRate;
-  final int price;
-  final int quantity;
+  final double price;
+  final double quantity;
   final String paymentMethods;
 
   TradeCard({

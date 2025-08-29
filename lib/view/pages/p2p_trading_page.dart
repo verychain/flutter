@@ -35,32 +35,62 @@ class _P2PTradingPageState extends State<P2PTradingPage>
     loadTradesFromAsset();
   }
 
+  // --- 안전 파서 유틸 ---
+  double _asDouble(dynamic v, [double def = 0.0]) {
+    if (v is num) return v.toDouble();
+    if (v is String) return double.tryParse(v) ?? def;
+    return def;
+  }
+
+  int _asInt(dynamic v, [int def = 0]) {
+    if (v is num) return v.toInt();
+    if (v is String) return int.tryParse(v) ?? def;
+    return def;
+  }
+
+  String _asString(dynamic v, [String def = '']) {
+    if (v == null) return def;
+    return v.toString();
+  }
+
+  DateTime _asDate(dynamic v) {
+    if (v is DateTime) return v;
+    if (v is String) return DateTime.tryParse(v) ?? DateTime.now();
+    return DateTime.now();
+  }
+
+  // --- trades.json 로드 ---
   Future<void> loadTradesFromAsset() async {
-    final String jsonString = await rootBundle.loadString('assets/trades.json');
-    final List<dynamic> jsonData = json.decode(jsonString);
+    final jsonString = await rootBundle.loadString('assets/trades.json');
+    final List<dynamic> jsonData = json.decode(jsonString) as List<dynamic>;
 
-    trades = [];
+    final List<TradeCard> loaded = [];
 
-    for (var item in jsonData) {
-      final trade = TradeCard(
-        type: item['type'] ?? '',
-        successRate: item['successRate'] ?? 0.0,
-        updatedAt: DateTime.parse(
-          item['updatedAt'] ?? DateTime.now().toIso8601String(),
+    for (final raw in jsonData) {
+      final m = raw as Map<String, dynamic>;
+
+      final type = _asString(m['type']).toUpperCase(); // 'BUY' / 'SELL'
+      final ranking = _asString(m['userRanking'], 'BRONZE').toUpperCase();
+
+      loaded.add(
+        TradeCard(
+          type: type,
+          successRate: _asDouble(m['successRate']),
+          updatedAt: _asDate(m['updatedAt']),
+          createdAt: _asDate(m['createdAt']),
+          userName: _asString(m['userName']),
+          userRanking: ranking,
+          tradeCount: _asInt(m['tradeCount']),
+          price: _asDouble(m['price']),
+          quantity: _asDouble(m['quantity']),
+          paymentMethods: _asString(m['paymentMethods']),
         ),
-        createdAt: DateTime.parse(
-          item['createdAt'] ?? DateTime.now().toIso8601String(),
-        ),
-        userName: item['userName'] ?? '',
-        tradeCount: item['tradeCount'] ?? 0,
-        price: item['price'] ?? 0,
-        quantity: item['quantity'] ?? 0,
-        paymentMethods: item['paymentMethods'] ?? '',
-        userRanking: item['userRanking'] ?? 'BRONZE',
       );
-      trades.add(trade);
     }
-    setState(() {});
+
+    setState(() {
+      trades = loaded;
+    });
   }
 
   @override
@@ -116,7 +146,7 @@ class _P2PTradingPageState extends State<P2PTradingPage>
           );
         },
         label: Text(
-          '거래 등록하기',
+          '주문 등록',
           style: TextStyle(fontSize: 18.0, color: Colors.white),
         ),
         icon: Icon(Icons.add, color: Colors.white),
@@ -194,7 +224,7 @@ class _P2PTradingPageState extends State<P2PTradingPage>
 
     return ListView.builder(
       padding: EdgeInsets.symmetric(horizontal: 16.0),
-      itemCount: sortedTrades.length,
+      itemCount: sortedTrades.length.toInt(),
       itemBuilder: (context, index) {
         return TradeCardWidget(
           trade: sortedTrades[index],

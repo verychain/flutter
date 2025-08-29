@@ -1,6 +1,7 @@
 import 'package:demo_flutter/data/constants.dart';
 import 'package:demo_flutter/model/trade_card.dart';
 import 'package:demo_flutter/model/type.dart';
+import 'package:demo_flutter/models/order_draft.dart';
 import 'package:demo_flutter/view/widgets/buy_sell_confirm_modal.dart';
 import 'package:demo_flutter/view/widgets/offer_amount_box.dart';
 import 'package:demo_flutter/view/widgets/token_info.dart';
@@ -10,12 +11,12 @@ import 'package:demo_flutter/view/widgets/commission_modal.dart';
 
 class OrderDetailPage extends StatefulWidget {
   final bool isBuySelected;
-  final TradeCard trade; // TradeCard 추가
+  final TradeCard trade;
 
   const OrderDetailPage({
     super.key,
     required this.isBuySelected,
-    required this.trade, // 생성자에 추가
+    required this.trade,
   });
 
   @override
@@ -23,10 +24,15 @@ class OrderDetailPage extends StatefulWidget {
 }
 
 class _OrderDetailPageState extends State<OrderDetailPage> {
-  final priceController = TextEditingController();
-  final quantityController = TextEditingController();
-  final totalController = TextEditingController();
-  final double maxQuantity = 100.0; // 최대 수량
+  late TextEditingController priceController;
+  late TextEditingController quantityController;
+  late TextEditingController totalController;
+
+  final priceFocusNode = FocusNode();
+  final quantityFocusNode = FocusNode();
+  final totalFocusNode = FocusNode();
+
+  final double maxQuantity = 27050.0; // 사용자의 지갑에 있는 수량
 
   bool isEditingTotal = false;
   int? selectedMethod;
@@ -44,37 +50,60 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
   void initState() {
     super.initState();
 
+    // TradeCard에서 단가와 수량을 초기값으로 세팅
+    priceController = TextEditingController(
+      text: widget.trade.price.toStringAsFixed(1),
+    );
+    quantityController = TextEditingController(
+      text: widget.trade.quantity.toStringAsFixed(2),
+    );
+    totalController = TextEditingController();
+
     priceController.addListener(_onPriceOrQuantityChanged);
     quantityController.addListener(_onPriceOrQuantityChanged);
     totalController.addListener(_onTotalChanged);
   }
 
   void _onPriceOrQuantityChanged() {
-    if (isEditingTotal) return;
-    final price = double.tryParse(priceController.text) ?? 0;
-    final quantity = double.tryParse(quantityController.text) ?? 0;
-    final total = price * quantity;
-    totalController.text = total == 0
+    // 콤마 제거 후 계산
+    final price = parseNumber(priceController.text);
+    final qty = parseNumber(quantityController.text);
+    final total = price * qty;
+
+    // 총액은 "표시 전용"이라서 포맷해서 넣어줌 (정수)
+    final formatted = total == 0
         ? ''
-        : total.round().toString(); // 총액은 반올림해서 정수로 표기
+        : formatWithComma(total.round(), maxFractionDigits: 0);
+    if (totalController.text != formatted && !totalFocusNode.hasFocus) {
+      totalController.text = formatted;
+    }
   }
 
   void _onTotalChanged() {
-    isEditingTotal = true;
-    final total = int.tryParse(totalController.text) ?? 0; // 총액은 정수로 처리
-    final price = double.tryParse(priceController.text) ?? 0;
-    final quantity = double.tryParse(quantityController.text) ?? 0;
+    // 총액을 "직접 편집 중"일 때만 역산
+    if (!totalFocusNode.hasFocus) return;
+
+    final total = parseNumber(totalController.text);
+    final price = parseNumber(priceController.text);
+    final qty = parseNumber(quantityController.text);
 
     if (price > 0) {
-      final newQuantity = total / price;
-      quantityController.text = newQuantity == 0
+      final newQty = total / price;
+      final t = newQty == 0
           ? ''
-          : newQuantity.toStringAsFixed(1);
-    } else if (quantity > 0) {
-      final newPrice = total / quantity;
-      priceController.text = newPrice == 0 ? '' : newPrice.toStringAsFixed(1);
+          : formatWithComma(newQty, minFractionDigits: 0, maxFractionDigits: 2);
+      if (quantityController.text != t) quantityController.text = t;
+    } else if (qty > 0) {
+      final newPrice = total / qty;
+      final t = newPrice == 0
+          ? ''
+          : formatWithComma(
+              newPrice,
+              minFractionDigits: 1,
+              maxFractionDigits: 1,
+            );
+      if (priceController.text != t) priceController.text = t;
     }
-    isEditingTotal = false;
   }
 
   @override
@@ -82,6 +111,10 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
     priceController.dispose();
     quantityController.dispose();
     totalController.dispose();
+    totalFocusNode.dispose(); // ⬅️ 추가
+    priceFocusNode.dispose();
+    quantityFocusNode.dispose();
+
     super.dispose();
   }
 
@@ -98,11 +131,18 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
     final isButtonEnabled =
         priceController.text.isNotEmpty &&
         quantityController.text.isNotEmpty &&
-        (double.tryParse(priceController.text) ?? 0) > 0 &&
-        (double.tryParse(quantityController.text) ?? 0) > 0;
+        parseNumber(priceController.text) > 0 &&
+        parseNumber(quantityController.text) > 0;
 
     return Scaffold(
-      appBar: AppBar(title: Text('거래 등록하기'), centerTitle: true),
+      appBar: AppBar(
+        title: Text('주문'),
+        centerTitle: true,
+        backgroundColor: Colors.white, // 반드시 추가!
+        foregroundColor: Colors.black, // 텍스트/아이콘 색상
+        elevation: 0, // 그림자 제거(선택)
+      ),
+      backgroundColor: Colors.white,
       resizeToAvoidBottomInset: true,
       body: Stack(
         children: [
@@ -138,6 +178,10 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                           quantityController: quantityController,
                           maxQuantity: maxQuantity,
                           totalController: totalController,
+                          priceFocusNode: priceFocusNode,
+                          quantityFocusNode: quantityFocusNode,
+                          totalFocusNode: totalFocusNode,
+                          type: OfferAmountBoxType.order,
                           isBuySelected: widget.isBuySelected, // 생성자에서 받은 값 사용
                           onPriceMinus: () {
                             final price =
@@ -251,35 +295,35 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                                   ),
                                 ),
                                 onPressed: isButtonEnabled
-                                    ? () {
-                                        // 매수/매도 등록 처리
+                                    ? () async {
+                                        final draft = OrderDraft(
+                                          isBuy: widget.isBuySelected,
+                                          asset: 'VERY',
+                                          price: parseNumber(
+                                            priceController.text,
+                                          ),
+                                          quantity: parseNumber(
+                                            quantityController.text,
+                                          ),
+                                          // feeRate 기본값 사용
+                                        );
+
                                         showDialog(
                                           context: context,
-                                          builder: (context) => BuySellConfirmModal(
-                                            type: widget.isBuySelected
-                                                ? TransactionType.buy
-                                                : TransactionType.sell,
-                                            price: priceController.text,
-                                            commission: widget.isBuySelected
-                                                ? null
-                                                : ((double.tryParse(
-                                                                quantityController
-                                                                    .text,
-                                                              ) ??
-                                                              0) *
-                                                          0.05)
-                                                      .toStringAsFixed(2),
-                                            quantityToSend:
-                                                quantityController.text,
-                                            totalPrice: totalController.text,
-                                            onConfirm: () {
-                                              // 등록 처리
-                                              Navigator.of(context).pop();
-                                            },
-                                            onCancel: () {
-                                              Navigator.of(context).pop();
-                                            },
-                                          ),
+                                          builder: (context) =>
+                                              BuySellConfirmModal(
+                                                type: widget.isBuySelected
+                                                    ? TransactionType.buy
+                                                    : TransactionType.sell,
+                                                draft: draft,
+                                                onConfirm: () {
+                                                  // 등록 처리
+                                                  Navigator.of(context).pop();
+                                                },
+                                                onCancel: () {
+                                                  Navigator.of(context).pop();
+                                                },
+                                              ),
                                         );
                                       }
                                     : null,

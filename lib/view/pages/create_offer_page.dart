@@ -1,4 +1,5 @@
 import 'package:demo_flutter/data/constants.dart';
+import 'package:demo_flutter/model/type.dart';
 import 'package:demo_flutter/view/pages/register_complete_page.dart';
 import 'package:demo_flutter/view/pages/signup_complete_page.dart';
 import 'package:demo_flutter/view/widgets/buy_sell_toggle.dart';
@@ -139,6 +140,7 @@ class _CreateOfferPageState extends State<CreateOfferPage> {
                           maxQuantity: maxQuantity,
                           totalController: totalController,
                           isBuySelected: isBuySelected,
+                          type: OfferAmountBoxType.offer,
                           onPriceMinus: () {
                             final price =
                                 double.tryParse(priceController.text) ?? 0.0;

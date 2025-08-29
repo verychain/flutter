@@ -1,3 +1,39 @@
+// format_utils.dart
+import 'package:intl/intl.dart';
+
+// 컨트랙트 주소 마스킹 함수 추가
+String maskAddress(String address) {
+  if (address.length <= 12) return address;
+  return '${address.substring(0, 6)}...${address.substring(address.length - 6)}';
+}
+
+String formatWithComma(
+  num? n, {
+  int minFractionDigits = 0,
+  int maxFractionDigits = 0,
+}) {
+  if (n == null) return '';
+  final f = NumberFormat.decimalPattern()
+    ..minimumFractionDigits = minFractionDigits
+    ..maximumFractionDigits = maxFractionDigits;
+  return f.format(n);
+}
+
+// 정수면 소수 자릿수 0, 소수면 최대 1자리 (가격)
+String formatPriceSmart(num v) =>
+    formatWithComma(v, minFractionDigits: 0, maxFractionDigits: 1);
+
+// 정수면 0자리, 소수면 최대 2자리 (수량)
+String formatQtySmart(num v) =>
+    formatWithComma(v, minFractionDigits: 0, maxFractionDigits: 2);
+
+String stripComma(String s) => s.replaceAll(',', '');
+
+double parseNumber(String s) {
+  final raw = stripComma(s.trim());
+  return double.tryParse(raw) ?? 0;
+}
+
 String formatNumberWithComma(num number) {
   return number
       .toStringAsFixed(0)

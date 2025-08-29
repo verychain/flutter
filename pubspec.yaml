@@ -40,6 +40,7 @@ dependencies:
   wepin_flutter_login_lib: ^1.0.0
   wepin_flutter_widget_sdk: ^1.0.0
   flutter_dotenv: ^5.2.1
+  intl: ^0.19.0
 
 dev_dependencies:
   flutter_test:
@@ -67,6 +68,7 @@ flutter:
     - assets/images/
     - assets/lotties/
     - assets/logos/
+    - assets/banks/
     - assets/countries.json
     - assets/trades.json
     - .env

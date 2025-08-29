@@ -1,29 +1,39 @@
 import 'package:demo_flutter/model/type.dart';
+import 'package:demo_flutter/models/order_draft.dart';
+import 'package:demo_flutter/utils/format_utils.dart';
+import 'package:demo_flutter/view/pages/transaction_session.dart';
 import 'package:flutter/material.dart';
 
 class BuySellConfirmModal extends StatelessWidget {
   final TransactionType type;
-  final String price;
-  final String? commission;
-  final String quantityToSend;
-  final String totalPrice;
   final VoidCallback onConfirm;
   final VoidCallback onCancel;
+  final OrderDraft draft;
 
   const BuySellConfirmModal({
     super.key,
     required this.type,
-    required this.price,
-    required this.commission,
-    required this.quantityToSend,
-    required this.totalPrice,
+    required this.draft,
     required this.onConfirm,
     required this.onCancel,
   });
 
   @override
   Widget build(BuildContext context) {
-    final isSell = type == TransactionType.sell;
+    final isSell = !draft.isBuy;
+
+    String krw(num n) => formatWithComma(n, maxFractionDigits: 0); // 정수 표기
+    String num2(num n, {int max = 2}) =>
+        formatWithComma(n, minFractionDigits: 0, maxFractionDigits: max);
+    String qty(num n, {int max = 2}) => formatWithComma(
+      n,
+      minFractionDigits: 0,
+      maxFractionDigits: max,
+    ); // 수량: 정수면 0자리, 아니면 최대 2자리 + 천단위
+    final double sendQty = isSell
+        ? (draft.quantity + draft.fee)
+        : draft.quantity;
+
     return AlertDialog(
       backgroundColor: Colors.white,
       contentPadding: EdgeInsets.symmetric(vertical: 32, horizontal: 24),
@@ -48,13 +58,15 @@ class BuySellConfirmModal extends StatelessWidget {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _infoRow('단위 가격', price, '원'),
+          _infoRow('단위 가격', krw(draft.price), '원'),
           SizedBox(height: 12),
-          if (isSell) _infoRow('수수료(0.05%)', commission ?? '0', '원'),
+          if (isSell)
+            _infoRow('수수료(0.05%)', num2(draft.fee), 'VERY'), // 수량 기준 수수료
+
           if (isSell) SizedBox(height: 12),
-          _infoRow(isSell ? '보낼 수량' : '받을 수량', quantityToSend, 'VERY'),
-          SizedBox(height: 12),
-          _infoRow('받을 금액', totalPrice, '원'),
+          _infoRow(isSell ? '보낼 수량' : '받을 수량', qty(sendQty), 'VERY'),
+          const SizedBox(height: 12),
+          _infoRow('받을 금액', krw(draft.total), '원'),
         ],
       ),
       actionsAlignment: MainAxisAlignment.center,
@@ -88,7 +100,15 @@ class BuySellConfirmModal extends StatelessWidget {
                   ),
                   elevation: 0,
                 ),
-                onPressed: onConfirm,
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          TransactionSessionPage(draft: draft),
+                    ),
+                  );
+                },
                 child: Text('확인', style: TextStyle(fontSize: 16)),
               ),
             ),

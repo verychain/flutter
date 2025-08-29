@@ -6,23 +6,23 @@
     "userName": "sleepless_night",
     "userRating": 98.5,
     "tradeCount": 245,
-    "price": 13,
+    "price": 19.7,
     "successRate": 98.5,
     "quantity": 10000,
-    "paymentMethods": "신한은행",
+    "paymentMethods": "토스",
     "userRanking": "PLATINUM"
   },
   {
     "type": "SELL",
     "updatedAt": "2025-08-17T08:35:00",
     "createdAt": "2025-08-17T06:00:00",
-    "userName": "iwanttoberich",
+    "userName": "승현아빠",
     "userRating": 99.2,
     "tradeCount": 156,
-    "price": 12,
+    "price": 20,
     "successRate": 99.2,
-    "quantity": 20000,
-    "paymentMethods": "국민은행",
+    "quantity": 400,
+    "paymentMethods": "은행",
     "userRanking": "GOLD"
   },
   {
@@ -32,10 +32,10 @@
     "userName": "vanci",
     "userRating": 97.8,
     "tradeCount": 89,
-    "price": 13,
+    "price": 20.05,
     "successRate": 97.8,
     "quantity": 30000,
-    "paymentMethods": "우리은행",
+    "paymentMethods": "은행",
     "userRanking": "BRONZE"
   },
   {
@@ -45,10 +45,10 @@
     "userName": "rick",
     "userRating": 98.5,
     "tradeCount": 245,
-    "price": 13,
+    "price": 20,
     "successRate": 98.5,
     "quantity": 10000,
-    "paymentMethods": "신한은행",
+    "paymentMethods": "은행",
     "userRanking": "SILVER"
   },
   {
@@ -58,10 +58,10 @@
     "userName": "anonymouse_monkey",
     "userRating": 99.2,
     "tradeCount": 156,
-    "price": 13,
+    "price": 21,
     "successRate": 99.2,
     "quantity": 20000,
-    "paymentMethods": "국민은행",
+    "paymentMethods": "카카오페이",
     "userRanking": "PLATINUM"
   },
   {
@@ -71,10 +71,10 @@
     "userName": "yonadev",
     "userRating": 97.8,
     "tradeCount": 89,
-    "price": 13,
+    "price": 20.2,
     "successRate": 97.8,
     "quantity": 30000,
-    "paymentMethods": "우리은행",
+    "paymentMethods": "은행",
     "userRanking": "GOLD"
   }
 ]

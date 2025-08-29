@@ -46,7 +46,7 @@ class TradeSwitchWidget extends StatelessWidget {
                 ),
                 child: Center(
                   child: Text(
-                    '매수',
+                    '매수하기',
                     style: TextStyle(
                       color: isBuySelected ? Colors.white : Colors.white70,
                       fontSize: 15.0,
@@ -73,7 +73,7 @@ class TradeSwitchWidget extends StatelessWidget {
                 ),
                 child: Center(
                   child: Text(
-                    '매도',
+                    '매도하기',
                     style: TextStyle(
                       color: !isBuySelected ? Colors.white : Colors.white70,
                       fontSize: 15.0,
