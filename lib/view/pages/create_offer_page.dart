@@ -1,13 +1,13 @@
 import 'package:demo_flutter/data/constants.dart';
 import 'package:demo_flutter/model/type.dart';
 import 'package:demo_flutter/view/pages/register_complete_page.dart';
-import 'package:demo_flutter/view/pages/signup_complete_page.dart';
 import 'package:demo_flutter/view/widgets/buy_sell_toggle.dart';
 import 'package:demo_flutter/view/widgets/offer_amount_box.dart';
 import 'package:demo_flutter/view/widgets/token_info.dart';
 import 'package:demo_flutter/view/widgets/transaction_method.dart';
 import 'package:demo_flutter/view/widgets/register_confirm_modal.dart';
 import 'package:flutter/material.dart';
+import 'package:demo_flutter/core/amount_form.dart';
 
 class CreateOfferPage extends StatefulWidget {
   const CreateOfferPage({super.key});
@@ -17,14 +17,12 @@ class CreateOfferPage extends StatefulWidget {
 }
 
 class _CreateOfferPageState extends State<CreateOfferPage> {
-  final priceController = TextEditingController();
-  final quantityController = TextEditingController();
-  final totalController = TextEditingController();
-  final double maxQuantity = 100.0; // 최대 수량
+  late OrderAmountForm form;
 
+  final double maxQuantity = 1000.0; // 최대 수량
+  int? selectedMethod;
   bool isEditingTotal = false;
   bool isBuySelected = true;
-  int? selectedMethod;
 
   // TokenInfo 초기값을 double로 선언
   final String assetName = "VERY";
@@ -38,45 +36,40 @@ class _CreateOfferPageState extends State<CreateOfferPage> {
   @override
   void initState() {
     super.initState();
-
-    priceController.addListener(_onPriceOrQuantityChanged);
-    quantityController.addListener(_onPriceOrQuantityChanged);
-    totalController.addListener(_onTotalChanged);
+    form = OrderAmountForm(initialPrice: 0, initialQuantity: 0);
   }
 
-  void _onPriceOrQuantityChanged() {
-    if (isEditingTotal) return;
-    final price = double.tryParse(priceController.text) ?? 0;
-    final quantity = double.tryParse(quantityController.text) ?? 0;
-    final total = price * quantity;
-    totalController.text = total == 0
-        ? ''
-        : total.round().toString(); // 총액은 반올림해서 정수로 표기
-  }
+  // void _onPriceOrQuantityChanged() {
+  //   if (isEditingTotal) return;
+  //   final price = double.tryParse(priceController.text) ?? 0;
+  //   final quantity = double.tryParse(quantityController.text) ?? 0;
+  //   final total = price * quantity;
+  //   totalController.text = total == 0
+  //       ? ''
+  //       : total.round().toString(); // 총액은 반올림해서 정수로 표기
+  // }
 
-  void _onTotalChanged() {
-    isEditingTotal = true;
-    final total = int.tryParse(totalController.text) ?? 0; // 총액은 정수로 처리
-    final price = double.tryParse(priceController.text) ?? 0;
-    final quantity = double.tryParse(quantityController.text) ?? 0;
+  // void _onTotalChanged() {
+  //   isEditingTotal = true;
+  //   final total = int.tryParse(totalController.text) ?? 0; // 총액은 정수로 처리
+  //   final price = double.tryParse(priceController.text) ?? 0;
+  //   final quantity = double.tryParse(quantityController.text) ?? 0;
 
-    if (price > 0) {
-      final newQuantity = total / price;
-      quantityController.text = newQuantity == 0
-          ? ''
-          : newQuantity.toStringAsFixed(1);
-    } else if (quantity > 0) {
-      final newPrice = total / quantity;
-      priceController.text = newPrice == 0 ? '' : newPrice.toStringAsFixed(1);
-    }
-    isEditingTotal = false;
-  }
+  //   if (price > 0) {
+  //     final newQuantity = total / price;
+  //     quantityController.text = newQuantity == 0
+  //         ? ''
+  //         : newQuantity.toStringAsFixed(1);
+  //   } else if (quantity > 0) {
+  //     final newPrice = total / quantity;
+  //     priceController.text = newPrice == 0 ? '' : newPrice.toStringAsFixed(1);
+  //   }
+  //   isEditingTotal = false;
+  // }
 
   @override
   void dispose() {
-    priceController.dispose();
-    quantityController.dispose();
-    totalController.dispose();
+    form.dispose();
     super.dispose();
   }
 
@@ -88,8 +81,15 @@ class _CreateOfferPageState extends State<CreateOfferPage> {
 
   @override
   Widget build(BuildContext context) {
+    print('form.priceController  = ${identityHashCode(form.priceController)}');
+
     return Scaffold(
-      appBar: AppBar(title: Text('거래 등록하기'), centerTitle: true),
+      appBar: AppBar(
+        title: Text('거래 등록하기'),
+        centerTitle: true,
+        backgroundColor: Colors.white, // 반드시 추가!
+        foregroundColor: Colors.black,
+      ),
       resizeToAvoidBottomInset: true,
       body: Stack(
         children: [
@@ -120,9 +120,7 @@ class _CreateOfferPageState extends State<CreateOfferPage> {
                           setState(() {
                             isBuySelected = value;
                             // 매수/매도 전환 시 입력값 초기화
-                            priceController.clear();
-                            quantityController.clear();
-                            totalController.clear();
+                            form.controllerClear();
                             selectedMethod = null;
                             // OfferAmountBox 내부에서 사용하는 selectedPercent도 OfferAmountBox에서 초기화됨
                           });
@@ -135,27 +133,17 @@ class _CreateOfferPageState extends State<CreateOfferPage> {
                           FocusScope.of(context).unfocus();
                         },
                         child: OfferAmountBox(
-                          priceController: priceController,
-                          quantityController: quantityController,
+                          priceController: form.priceController,
+                          quantityController: form.quantityController,
+                          totalController: form.totalController,
+                          priceFocusNode: form.priceNode,
+                          quantityFocusNode: form.qtyNode,
+                          totalFocusNode: form.totalNode,
                           maxQuantity: maxQuantity,
-                          totalController: totalController,
                           isBuySelected: isBuySelected,
                           type: OfferAmountBoxType.offer,
-                          onPriceMinus: () {
-                            final price =
-                                double.tryParse(priceController.text) ?? 0.0;
-                            final newPrice = (price - 0.1).clamp(
-                              0,
-                              double.infinity,
-                            );
-                            priceController.text = newPrice.toStringAsFixed(1);
-                          },
-                          onPricePlus: () {
-                            final price =
-                                double.tryParse(priceController.text) ?? 0.0;
-                            final newPrice = price + 0.1;
-                            priceController.text = newPrice.toStringAsFixed(1);
-                          },
+                          onPriceMinus: () => form.bumpPrice(-0.1),
+                          onPricePlus: () => form.bumpPrice(0.1),
                         ),
                       ),
                       SizedBox(
@@ -195,15 +183,15 @@ class _CreateOfferPageState extends State<CreateOfferPage> {
                     elevation: 0,
                   ),
                   onPressed:
-                      (priceController.text.isNotEmpty &&
-                          quantityController.text.isNotEmpty &&
+                      (form.priceController.text.isNotEmpty &&
+                          form.quantityController.text.isNotEmpty &&
                           selectedMethod != null)
                       ? () {
-                          final price = priceController.text;
-                          final quantity = quantityController.text;
+                          final price = form.priceController.text;
+                          final quantity = form.quantityController.text;
                           final commission =
                               (double.tryParse(quantity) ?? 0) * 0.05;
-                          final totalPrice = totalController.text;
+                          final totalPrice = form.totalController.text;
 
                           showDialog(
                             context: context,

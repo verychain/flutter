@@ -22,9 +22,6 @@ class BuySellConfirmModal extends StatelessWidget {
   Widget build(BuildContext context) {
     final isSell = !draft.isBuy;
 
-    String krw(num n) => formatWithComma(n, maxFractionDigits: 0); // 정수 표기
-    String num2(num n, {int max = 2}) =>
-        formatWithComma(n, minFractionDigits: 0, maxFractionDigits: max);
     String qty(num n, {int max = 2}) => formatWithComma(
       n,
       minFractionDigits: 0,

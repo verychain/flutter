@@ -103,8 +103,11 @@ class _OfferAmountBoxState extends State<OfferAmountBox> {
       formatter: formatQtySmart,
     );
     // 총액은 현재 정수 표기 정책이라면 필요 시 동일하게 붙일 수 있음
-    // _attachAutoFormat(controller: widget.totalController, node: _totalNode,
-    //   formatter: (v) => formatWithComma(v.round(), maxFractionDigits: 0));
+    // _attachAutoFormat(
+    //   controller: widget.totalController,
+    //   node: _totalNode,
+    //   formatter: (v) => formatWithComma(v.round(), maxFractionDigits: 0),
+    // );
   }
 
   @override
@@ -117,6 +120,10 @@ class _OfferAmountBoxState extends State<OfferAmountBox> {
 
   @override
   Widget build(BuildContext context) {
+    print(
+      'box.priceController   = ${identityHashCode(widget.priceController)}',
+    );
+
     return Padding(
       padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 16.0),
       child: Column(
@@ -413,7 +420,7 @@ class _OfferAmountBoxState extends State<OfferAmountBox> {
                               isDense: true,
                               contentPadding: EdgeInsets.zero,
                               border: InputBorder.none,
-                              hintText: '0',
+                              // hintText: '0',
                             ),
                             onTap: () {
                               setState(() {
@@ -424,9 +431,9 @@ class _OfferAmountBoxState extends State<OfferAmountBox> {
                         ),
                       ),
                       SizedBox(width: 8),
-                      (widget.type == OfferAmountBoxType.offer &&
-                                  !widget.isBuySelected ||
-                              widget.type == OfferAmountBoxType.order)
+                      ((widget.type == OfferAmountBoxType.offer &&
+                                  widget.isBuySelected) ||
+                              (widget.type == OfferAmountBoxType.order))
                           ? Text(
                               'VERY',
                               style: TextStyle(
@@ -468,9 +475,7 @@ class _OfferAmountBoxState extends State<OfferAmountBox> {
                     children: [
                       Text(
                         formatQtySmart(
-                          (double.tryParse(widget.quantityController.text) ??
-                                  0) *
-                              0.0005,
+                          parseNumber(widget.quantityController.text) * 0.0005,
                         ),
                         style: TextStyle(
                           fontSize: 14,
@@ -516,6 +521,7 @@ class _OfferAmountBoxState extends State<OfferAmountBox> {
                       focusNode: _totalNode,
                       onFocusChange: (hasFocus) {
                         final c = widget.totalController;
+                        print('Total Focus: $c');
                         if (hasFocus) {
                           c.text = stripComma(c.text);
                         } else {
