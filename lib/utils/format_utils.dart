@@ -27,6 +27,10 @@ String formatPriceSmart(num v) =>
 String formatQtySmart(num v) =>
     formatWithComma(v, minFractionDigits: 0, maxFractionDigits: 2);
 
+String krw(num n) => formatWithComma(n, maxFractionDigits: 0); // 정수 표기
+String num2(num n, {int max = 2}) =>
+    formatWithComma(n, minFractionDigits: 0, maxFractionDigits: max);
+
 String stripComma(String s) => s.replaceAll(',', '');
 
 double parseNumber(String s) {

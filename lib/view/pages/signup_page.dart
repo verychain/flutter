@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'package:demo_flutter/core/email_auth_api.dart';
 import 'package:demo_flutter/data/constants.dart';
-import 'package:demo_flutter/view/widget_tree.dart';
 import 'package:demo_flutter/view/pages/signup_complete_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -56,6 +56,10 @@ class _SignupPageState extends State<SignupPage> {
     setState(() {});
   }
 
+  // final String url = 'http://192.168.0.92';
+  final String url = 'http://127.0.0.1';
+  late final EmailAuthApi api;
+
   @override
   void initState() {
     super.initState();
@@ -65,6 +69,7 @@ class _SignupPageState extends State<SignupPage> {
     controllerVerificationCode = TextEditingController();
     controllerNickname = TextEditingController(); // 닉네임 컨트롤러 초기화 추가
     loadCountryList(); // 국가 리스트 로드
+    api = EmailAuthApi('$url:5001/verypool-email/asia-northeast1');
   }
 
   @override
@@ -73,8 +78,33 @@ class _SignupPageState extends State<SignupPage> {
     controllerPassword.dispose();
     controllerPasswordConfirm.dispose();
     controllerVerificationCode.dispose();
+    controllerNickname.dispose(); // ✅ 추가
     super.dispose();
   }
+
+  // 상태 변수 추가
+  bool sendingCode = false;
+  bool verifyingCode = false;
+
+  Future<void> onRequestCode(String email) async {
+    print('이메일 인증코드 전송 before: $email');
+    await api.sendCode(email);
+    print('이메일 인증코드 전송 완료: $email');
+    // UI: "코드를 보냈어요. 이메일 확인해 주세요" + 재전송 60초 쿨다운
+  }
+
+  Future<bool> onVerify(String email, String code) async {
+    final ok = await api.verifyCode(email, code); // <- Future<bool>
+    return ok;
+  }
+
+  bool get canSubmit =>
+      isEmailVerified &&
+      validatePassword(controllerPassword.text) &&
+      controllerPassword.text == controllerPasswordConfirm.text &&
+      (selectedCountry != null);
+
+  // ElevatedButton(onPressed: canSubmit ? onSignupPressed : null, ...)
 
   // 비밀번호 규칙별 체크 함수
   void validatePasswordRules(String password) {
@@ -111,23 +141,18 @@ class _SignupPageState extends State<SignupPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: Text('회원가입'),
+        centerTitle: true,
+        backgroundColor: Colors.white, // 반드시 추가!
+        foregroundColor: Colors.black,
+        elevation: 0, // 그림자 제거
+      ),
       body: Padding(
         padding: const EdgeInsets.all(25.0),
         child: SingleChildScrollView(
           child: Column(
             children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  "회원가입",
-                  style: TextStyle(
-                    color: Colors.grey.shade900,
-                    fontSize: 24.0,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
               SizedBox(height: 16.0),
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -198,34 +223,62 @@ class _SignupPageState extends State<SignupPage> {
                     ),
                   ),
                   SizedBox(width: 8.0),
+
                   ElevatedButton(
                     onPressed: isEmailVerified
                         ? null
-                        : () {
-                            sendVerificationCode();
+                        : () async {
+                            final email = controllerEmail.text.trim();
+                            if (email.isEmpty || !email.contains('@')) {
+                              setState(
+                                () => errorMessage = '올바른 이메일 주소를 입력해주세요.',
+                              );
+                              return;
+                            }
+                            setState(() {
+                              errorMessage = null;
+                            });
+
+                            try {
+                              final ok = await api.sendCode(email);
+                              if (!mounted) return;
+                              if (ok) {
+                                setState(() => isVerificationCodeSent = true);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('인증코드가 전송되었습니다.'),
+                                  ),
+                                );
+                              }
+                            } catch (e) {
+                              if (!mounted) return;
+                              setState(() => errorMessage = '코드 전송 실패: $e');
+                            }
                           },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: isEmailVerified
-                          ? Colors.grey
-                          : AppColors.primary,
+                      backgroundColor: AppColors.primary,
                       padding: EdgeInsets.symmetric(
                         horizontal: 16.0,
                         vertical: 12.0,
                       ),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(
-                          12.0,
-                        ), // 15.0에서 4.0으로 변경
+                        borderRadius: BorderRadius.circular(12.0),
                       ),
                     ),
-                    child: Text(
-                      isEmailVerified ? '인증완료' : '인증요청',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 12.0,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    child: sendingCode
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Text(
+                            isEmailVerified ? '인증완료' : '인증요청',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                   ),
                 ],
               ),
@@ -268,9 +321,46 @@ class _SignupPageState extends State<SignupPage> {
                     ),
                     SizedBox(width: 8.0),
                     ElevatedButton(
-                      onPressed: () {
-                        verifyCode();
-                      },
+                      onPressed: verifyingCode
+                          ? null
+                          : () async {
+                              final email = controllerEmail.text.trim();
+                              final code = controllerVerificationCode.text
+                                  .trim();
+                              if (code.length != 6) {
+                                setState(
+                                  () => errorMessage = '6자리 인증코드를 입력해주세요.',
+                                );
+                                return;
+                              }
+                              setState(() {
+                                verifyingCode = true;
+                                errorMessage = null;
+                              });
+                              try {
+                                final ok = await onVerify(email, code);
+                                if (!mounted) return;
+                                if (ok) {
+                                  setState(() => isEmailVerified = true);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('이메일 인증이 완료되었습니다.'),
+                                    ),
+                                  );
+                                } else {
+                                  setState(
+                                    () =>
+                                        errorMessage = '인증코드가 올바르지 않거나 만료되었어요.',
+                                  );
+                                }
+                              } catch (e) {
+                                if (!mounted) return;
+                                setState(() => errorMessage = '인증 실패: $e');
+                              } finally {
+                                if (mounted)
+                                  setState(() => verifyingCode = false);
+                              }
+                            },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         padding: EdgeInsets.symmetric(
@@ -450,57 +540,61 @@ class _SignupPageState extends State<SignupPage> {
 
               SizedBox(height: 20.0),
 
-              // 거주국가 선택
-              TextField(
-                readOnly: true,
-                controller: TextEditingController(text: selectedCountry ?? ''),
-                decoration: InputDecoration(
-                  hintText: '거주국가 선택',
-                  hintStyle: TextStyle(color: Colors.grey.shade400),
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: 16.0,
-                    vertical: 12.0,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15.0),
-                    borderSide: BorderSide(color: Colors.grey.shade400),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15.0),
-                    borderSide: BorderSide(color: Colors.grey.shade400),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15.0),
-                    borderSide: BorderSide(color: Colors.blue),
-                  ),
-                  suffixIcon: Icon(
-                    Icons.arrow_drop_down,
-                    color: Colors.grey.shade400,
-                  ),
-                ),
+              // 기존 TextField 교체
+              InkWell(
                 onTap: () async {
                   final countryName = await showDialog<String>(
                     context: context,
-                    builder: (context) {
-                      return SimpleDialog(
-                        title: Text('거주국가 선택'),
-                        children: countryList.map((country) {
-                          return SimpleDialogOption(
-                            onPressed: () {
-                              Navigator.pop(context, country['name'] as String);
-                            },
-                            child: Text(country['name'] as String),
-                          );
-                        }).toList(),
-                      );
-                    },
+                    builder: (_) => SimpleDialog(
+                      title: const Text('거주국가 선택'),
+                      children: countryList.map((country) {
+                        return SimpleDialogOption(
+                          onPressed: () {
+                            Navigator.pop(context, country['name'] as String);
+                          },
+                          child: Text(country['name'] as String),
+                        );
+                      }).toList(),
+                    ),
                   );
                   if (countryName != null) {
-                    setState(() {
-                      selectedCountry = countryName;
-                    });
+                    setState(() => selectedCountry = countryName);
                   }
                 },
+                child: InputDecorator(
+                  decoration: InputDecoration(
+                    hintText: '거주국가 선택',
+                    hintStyle: TextStyle(color: Colors.grey.shade400),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                      borderSide: BorderSide(color: Colors.grey.shade400),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                      borderSide: BorderSide(color: Colors.grey.shade400),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                      borderSide: BorderSide(color: AppColors.primary),
+                    ),
+                    suffixIcon: Icon(
+                      Icons.arrow_drop_down,
+                      color: Colors.grey.shade400,
+                    ),
+                  ),
+                  child: Text(
+                    selectedCountry ?? '',
+                    style: TextStyle(
+                      color: selectedCountry == null
+                          ? Colors.grey.shade400
+                          : Colors.black,
+                    ),
+                  ),
+                ),
               ),
 
               SizedBox(height: 32.0),
@@ -645,54 +739,30 @@ class _SignupPageState extends State<SignupPage> {
   }
 
   void onSignupPressed() {
-    setState(() {
-      errorMessage = null;
-    });
+    setState(() => errorMessage = null);
 
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => SignupCompletePage()),
-      (route) => false,
-    );
-
-    // 유효성 검사
     if (!isEmailVerified) {
-      setState(() {
-        errorMessage = '이메일 인증을 완료해주세요.';
-      });
+      setState(() => errorMessage = '이메일 인증을 완료해주세요.');
       return;
     }
-
     if (!validatePassword(controllerPassword.text)) {
-      setState(() {
-        errorMessage = '비밀번호는 12자 이상 128자 이하, 대문자/소문자/숫자/특수문자를 모두 포함해야 합니다.';
-      });
+      setState(() => errorMessage = '비밀번호는 12~128자, 대/소문자/숫자/특수문자 모두 포함해야 해요.');
       return;
     }
-
     if (controllerPassword.text != controllerPasswordConfirm.text) {
-      setState(() {
-        errorMessage = '비밀번호가 일치하지 않습니다.';
-      });
+      setState(() => errorMessage = '비밀번호가 일치하지 않습니다.');
       return;
     }
-
     if (selectedCountry == null) {
-      setState(() {
-        errorMessage = '거주국가를 선택해주세요.';
-      });
+      setState(() => errorMessage = '거주국가를 선택해주세요.');
       return;
     }
 
-    // 회원가입 성공
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('회원가입이 완료되었습니다.')));
-
+    // ✅ 모든 검증 통과 후에만 이동
     Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (context) => WidgetTree()),
-      (route) => false,
+      MaterialPageRoute(builder: (_) => const SignupCompletePage()),
+      (_) => false,
     );
   }
 }

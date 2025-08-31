@@ -49,7 +49,7 @@ class WelcomePage extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (context) {
-                            return WidgetTree(title: 'P2P 거래 플랫폼');
+                            return WidgetTree();
                           },
                         ),
                       );

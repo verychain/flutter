@@ -42,7 +42,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(backgroundColor: Colors.white),
       body: Padding(
         padding: const EdgeInsets.all(25.0),
         child: SingleChildScrollView(
@@ -404,7 +404,16 @@ class _LoginPageState extends State<LoginPage> {
     setState(() {
       errorMessage = null;
     });
-
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return WidgetTree();
+        },
+      ),
+      (route) => false,
+    );
+    return;
     if (confirmedEmail == controllerEmail.text &&
         confirmedPassword == controllerPassword.text) {
       Navigator.pushAndRemoveUntil(

@@ -1,6 +1,9 @@
 import 'package:demo_flutter/data/constants.dart';
 import 'package:demo_flutter/data/notifiers.dart';
 import 'package:demo_flutter/view/pages/welcome_page.dart';
+import 'package:demo_flutter/view/pages/p2p_trading_page.dart';
+import 'package:demo_flutter/view/pages/trade_history_page.dart';
+import 'package:demo_flutter/view/pages/profile_page.dart'; // 프로필 페이지 import 추가
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -37,7 +40,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
       valueListenable: isDarkModeNotifier,
-      builder: (context, isDarkMode, child) {
+      builder: (_, isDarkMode, __) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'Verypool - Crypto P2P Market',
@@ -51,7 +54,13 @@ class _MyAppState extends State<MyApp> {
                   : Brightness.light, // Will change when theme is toggled
             ),
           ),
-          home: WelcomePage(),
+          home: const WelcomePage(),
+          routes: {
+            '/profile': (_) => const ProfilePage(),
+            '/p2p': (_) => const P2PTradingPage(),
+            '/trade-history': (_) => const TradeHistoryPage(),
+          },
+          // onUnknownRoute: (s) => MaterialPageRoute(builder: (_) => const WelcomePage()),
         );
       },
     );

@@ -7,25 +7,23 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.all(20.0),
-      child: Column(
-        children: [
-          ListTile(
-            title: Text('Logout'),
-            onTap: () {
-              selectedPageNotifier.value = 0; // Reset to Home page
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) {
-                    return WelcomePage();
-                  },
-                ),
-              );
-            },
-          ),
-        ],
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          children: [
+            ListTile(
+              title: const Text('Logout'),
+              onTap: () {
+                selectedPageNotifier.value = 0;
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => const WelcomePage()),
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
